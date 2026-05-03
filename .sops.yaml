@@ -1,0 +1,9 @@
+keys:
+  - &operator age10gzj30y0wv32y040ymu2k2u76eldtry335zg9rk58d54algtp40sjgmrf4
+  - &nix-thinkpad age1zkftm4fhsuv4gscxwqrxp5jfkhr7u63wsxdehhw0w0cd4kutzy9szzrhy9
+creation_rules:
+  - path_regex: secrets/wireless.yaml
+    key_groups:
+    - age:
+      - *operator
+      - *nix-thinkpad
