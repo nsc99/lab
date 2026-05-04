@@ -19,6 +19,8 @@
       pre-commit-hooks,
     }:
     let
+      cluster = import ./cluster.nix;
+
       forAllSystems =
         fn:
         nixpkgs.lib.genAttrs [
@@ -32,6 +34,7 @@
         hostname:
         nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
+          specialArgs = { inherit cluster; };
           modules = [
             ./hosts/${hostname}
             sops-nix.nixosModules.sops
