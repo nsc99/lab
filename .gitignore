@@ -2,4 +2,4 @@
 .pre-commit-config.yaml
 .direnv/
 
-/test
+**/test
