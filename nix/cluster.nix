@@ -1,3 +1,3 @@
 {
-  serverHost = "nix-thinkpad";
+  serverHost = "nix-letsnote1";
 }

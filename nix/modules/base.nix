@@ -8,9 +8,6 @@
 
   security.sudo.wheelNeedsPassword = false;
 
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/sda";
-
   time.timeZone = "Europe/Berlin";
 
   environment.systemPackages = with pkgs; [
