@@ -7,6 +7,19 @@ let
   };
 in
 {
+  sops.secrets."sops-age-manifest" = {
+    sopsFile = ../secrets/sops-age.enc;
+    format = "binary";
+    path = "/var/lib/rancher/k3s/server/manifests/00-sops-age-secret.yaml";
+    mode = "0600";
+    owner = "root";
+    group = "root";
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /var/lib/rancher/k3s/server/manifests 0700 root root -"
+  ];
+
   services.k3s.manifests = {
     "01-namespace.yaml".source = ../config/manifests/flux-namespace.yaml;
     "02-install.yaml".source = fluxInstallManifest;

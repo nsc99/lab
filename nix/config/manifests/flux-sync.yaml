@@ -24,3 +24,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: lab
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
