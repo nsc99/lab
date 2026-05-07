@@ -45,6 +45,7 @@
       nixosConfigurations = {
         nix-thinkpad = mkHost "nix-thinkpad";
         nix-letsnote1 = mkHost "nix-letsnote1";
+        nix-letsnote2 = mkHost "nix-letsnote2";
       };
 
       devShells = forAllSystems (pkgs: {

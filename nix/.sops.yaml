@@ -2,6 +2,7 @@ keys:
   - &operator age10gzj30y0wv32y040ymu2k2u76eldtry335zg9rk58d54algtp40sjgmrf4
   - &nix-thinkpad age1zkftm4fhsuv4gscxwqrxp5jfkhr7u63wsxdehhw0w0cd4kutzy9szzrhy9
   - &nix-letsnote1 age1ms8xr24y5yy0s2se255v8vy2s602twyjqwdlswq0jf50f3ty6cjsuczrev
+  - &nix-letsnote2 age1jck0p00460dyqnvsns20pz0xg7ecu0eg2amtqlvtd88jypl47cfq23sjwv
 creation_rules:
   - path_regex: secrets/base.yaml
     key_groups:
@@ -9,3 +10,4 @@ creation_rules:
       - *operator
       - *nix-thinkpad
       - *nix-letsnote1
+      - *nix-letsnote2
