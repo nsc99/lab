@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gluetun
+  namespace: gluetun
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: qbittorrent-tls
+      hosts:
+        - q.schweigert.io
+  rules:
+    - host: q.schweigert.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbittorrent
+                port:
+                  number: 8080
