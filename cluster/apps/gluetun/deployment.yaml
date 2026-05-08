@@ -1,0 +1,107 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "gluetun"
+  namespace: "gluetun"
+  labels:
+    name: "gluetun"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      name: "gluetun"
+  template:
+    metadata:
+      labels:
+        name: "gluetun"
+    spec:
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 1.0.0.1
+
+      initContainers:
+        - name: "gluetun"
+          restartPolicy: "Always"
+          image: "ghcr.io/qdm12/gluetun:v3.41.0"
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            capabilities:
+              add:
+                - "NET_ADMIN"
+          env:
+            - name: "TZ"
+              value: "Europe/Berlin"
+            - name: "VPN_TYPE"
+              value: "wireguard"
+            - name: "VPN_SERVICE_PROVIDER"
+              value: "mullvad"
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun
+                  key: wireguard_private_key
+            - name: WIREGUARD_ADDRESSES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun
+                  key: wireguard_addresses
+            - name: SERVER_CITIES
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun
+                  key: server_cities
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "10.42.0.0/16,10.43.0.0/16"
+
+      containers:
+        - name: "qbittorrent"
+          image: "lscr.io/linuxserver/qbittorrent:latest"
+          imagePullPolicy: "Always"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          env:
+            - name: "TZ"
+              value: "Europe/Berlin"
+            - name: "PUID"
+              value: "1000"
+            - name: "PGID"
+              value: "1000"
+            - name: "WEBUI_PORT"
+              value: "8080"
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+          startupProbe:
+            tcpSocket:
+              port: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+          volumeMounts:
+            - mountPath: "/config"
+              name: "qbittorrent-config"
+            - mountPath: "/media"
+              name: "qbittorrent-media"
+      
+      volumes:
+        - name: "qbittorrent-config"
+          emptyDir:
+            sizeLimit: 500Mi
+            medium: Memory
+        - name: "qbittorrent-media"
+          emptyDir:
+            sizeLimit: 500Mi
+            medium: Memory
