@@ -33,7 +33,6 @@
       mkHost =
         hostname:
         nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
           specialArgs = { inherit cluster; };
           modules = [
             ./hosts/${hostname}
