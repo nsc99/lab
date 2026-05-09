@@ -14,13 +14,54 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: lab
+  name: infra-controllers
   namespace: flux-system
 spec:
   interval: 10m0s
   timeout: 1m0s
-  path: ./cluster
+  path: ./cluster/infra/controllers
   prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: lab
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-configs
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  timeout: 1m0s
+  path: ./cluster/infra/configs
+  prune: true
+  dependsOn:
+    - name: infra-controllers
+  sourceRef:
+    kind: GitRepository
+    name: lab
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  timeout: 1m0s
+  path: ./cluster/apps
+  prune: true
+  dependsOn:
+    - name: infra-configs
   sourceRef:
     kind: GitRepository
     name: lab
