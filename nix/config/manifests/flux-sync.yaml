@@ -19,7 +19,7 @@ metadata:
 spec:
   interval: 10m0s
   timeout: 1m0s
-  path: ./infra/controllers
+  path: ./cluster/infra/controllers
   prune: true
   wait: true
   sourceRef:
@@ -38,7 +38,7 @@ metadata:
 spec:
   interval: 10m0s
   timeout: 1m0s
-  path: ./infra/configs
+  path: ./cluster/infra/configs
   prune: true
   dependsOn:
     - name: infra-controllers
@@ -60,6 +60,8 @@ spec:
   timeout: 1m0s
   path: ./cluster/apps
   prune: true
+  dependsOn:
+    - name: infra-configs
   sourceRef:
     kind: GitRepository
     name: lab
