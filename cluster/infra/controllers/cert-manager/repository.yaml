@@ -8,4 +8,4 @@ spec:
   interval: 5m0s
   url: oci://quay.io/jetstack/charts/cert-manager
   ref: 
-    tag: 1.12.*
+    digest: sha256:294a761ca972ea11ae79b9219960ca13a5337a1cbb550604c151586d266159eb
