@@ -16,6 +16,11 @@
     git
     fluxcd
     net-tools
+    dmidecode
+    pciutils
+    usbutils
+    ethtool
+    upower
   ];
 
   # Copy the NixOS configuration file and link it from the resulting system
