@@ -35,7 +35,7 @@ spec:
       enabled: true
       className: traefik
       annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-staging
+        cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
         - paths:
             - path: /
@@ -43,7 +43,7 @@ spec:
       tls:
         - secretName: home-assistant-tls
           hosts:
-            - schweigert.io
+            - home.schweigert.io
     configuration:
       enabled: true
       forceInit: true
