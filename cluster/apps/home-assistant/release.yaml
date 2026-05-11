@@ -26,3 +26,26 @@ spec:
     service:
       type: ClusterIP
       port: 8123
+    persistence:
+      enabled: true
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      storageClass: ""
+    ingress:
+      enabled: true
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-staging
+      hosts:
+        - paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: home-assistant-tls
+          hosts:
+            - schweigert.io
+    configuration:
+      enabled: true
+      forceInit: true
+      trusted_proxies:
+      - 10.0.0.0/8
