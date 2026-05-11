@@ -18,6 +18,24 @@ creation_rules:
       - *operator
       - *nix-letsnote1
 
+  - path_regex: nix/secrets/zigbee2mqtt.yaml
+    key_groups:
+    - age:
+      - *operator
+      - *nix-letsnote2
+
+  - path_regex: nix/secrets/mosquitto.yaml
+    key_groups:
+    - age:
+      - *operator
+      - *nix-letsnote2
+
+  - path_regex: nix/secrets/z2m-devices.enc
+    key_groups:
+    - age:
+      - *operator
+      - *nix-letsnote2
+
   - path_regex: cluster/.*\.ya?ml$
     encrypted_regex: ^(data|stringData)$
     key_groups:
