@@ -1,0 +1,28 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+spec:
+  interval: 1h
+  timeout: 5m
+  chart:
+    spec:
+      chart: home-assistant
+      version: "*"
+      sourceRef:
+        kind: HelmRepository
+        name: pajikos
+        namespace: home-assistant
+  releaseName: home-assistant
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    service:
+      type: ClusterIP
+      port: 8123
