@@ -37,7 +37,8 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
-        - paths:
+        - host: home.schweigert.io
+          paths:
             - path: /
               pathType: Prefix
       tls:
