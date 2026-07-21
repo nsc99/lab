@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - gluetun
   - home-assistant
+  - mokuro-bunko

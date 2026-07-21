@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mokuro-bunko
+  namespace: mokuro-bunko
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: mokuro-bunko-tls
+      hosts:
+        - bunko.schweigert.io
+  rules:
+    - host: bunko.schweigert.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mokuro-bunko
+                port:
+                  number: 8080

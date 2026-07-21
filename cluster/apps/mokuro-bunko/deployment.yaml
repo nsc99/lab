@@ -1,0 +1,50 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "mokuro-bunko"
+  namespace: "mokuro-bunko"
+  labels:
+    name: "mokuro-bunko"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      name: "mokuro-bunko"
+  template:
+    metadata:
+      labels:
+        name: "mokuro-bunko"
+    spec:
+      containers:
+        - name: "mokuro-bunko"
+          image: "ghcr.io/nsc99/mokuro-bunko:0.1.0"
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+          startupProbe:
+            tcpSocket:
+              port: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+          volumeMounts:
+            - mountPath: "/data"
+              name: "mokuro-bunko-data"
+      volumes:
+        - name: "mokuro-bunko-data"
+          persistentVolumeClaim:
+            claimName: "mokuro-bunko-data"
