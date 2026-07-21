@@ -1,3 +1,3 @@
 {
-  serverHost = "nix-letsnote1";
+  serverHost = "nix-letsnote1.lab";
 }

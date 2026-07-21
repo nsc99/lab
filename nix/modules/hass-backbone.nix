@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 
 {
   networking.firewall.allowedTCPPorts = [
@@ -19,7 +19,6 @@
       group = config.users.users.zigbee2mqtt.group;
       sopsFile = ../secrets/z2m-devices.enc;
       format = "binary";
-      path = "${config.services.zigbee2mqtt.dataDir}/devices.yaml";
     };
 
     "mosquitto-zigbee2mqtt-password" = {
@@ -34,6 +33,19 @@
       group = "mosquitto";
     };
   };
+
+  systemd.services.zigbee2mqtt.serviceConfig.ExecStartPre =
+    let
+      setupDevices = pkgs.writeShellScript "z2m-setup-devices" ''
+        if [ ! -f ${config.services.zigbee2mqtt.dataDir}/devices.yaml ]; then
+          cp ${config.sops.secrets."zigbee2mqtt-devices.yaml".path} \
+             ${config.services.zigbee2mqtt.dataDir}/devices.yaml
+          chown zigbee2mqtt:zigbee2mqtt ${config.services.zigbee2mqtt.dataDir}/devices.yaml
+          chmod 600 ${config.services.zigbee2mqtt.dataDir}/devices.yaml
+        fi
+      '';
+    in
+    "+${setupDevices}";
 
   services.zigbee2mqtt.enable = true;
   services.zigbee2mqtt = {
