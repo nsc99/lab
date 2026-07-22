@@ -14,6 +14,7 @@ in
   };
 
   networking.firewall.allowedTCPPorts = [
+    9100 # prometheus node exporter
     10250 # k3s Kubelet metrics and API    6443 # k3s server kubernetes api
   ];
 
