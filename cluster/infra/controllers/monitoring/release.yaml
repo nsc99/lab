@@ -50,6 +50,11 @@ spec:
         enabled: true
         size: 2Gi
 
+      admin:
+        existingSecret: grafana
+        userKey: admin_username
+        passwordKey: admin_password
+
       ingress:
         enabled: true
         ingressClassName: traefik
