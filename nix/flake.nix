@@ -46,6 +46,7 @@
         nix-letsnote1 = mkHost "nix-letsnote1";
         nix-letsnote2 = mkHost "nix-letsnote2";
         nix-optiplex1 = mkHost "nix-optiplex1";
+        nix-optiplex2 = mkHost "nix-optiplex2";
       };
 
       devShells = forAllSystems (pkgs: {
