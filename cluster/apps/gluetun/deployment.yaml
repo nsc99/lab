@@ -60,7 +60,7 @@ spec:
 
       containers:
         - name: "qbittorrent"
-          image: "lscr.io/linuxserver/qbittorrent:5.2.3-libtorrentv1"
+          image: "lscr.io/linuxserver/qbittorrent:5.2.3-libtorrentv1@sha256:dbbc6dec44030913baddb88b950eb2270741902c4777d531b50bd709b6ab8ffc"
           imagePullPolicy: "Always"
           resources:
             requests:
