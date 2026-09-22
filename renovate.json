@@ -1,0 +1,121 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard"
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": [
+    "* 17-23 * * 5"
+  ],
+  "prConcurrentLimit": 10,
+  "minimumReleaseAge": "3 days",
+  "flux": {
+    "managerFilePatterns": [
+      "/(^|/)cluster/.+\\.ya?ml$/"
+    ]
+  },
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/(^|/)cluster/.+\\.ya?ml$/"
+    ]
+  },
+  "nix": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "* 17-23 * * 5"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/\\.ya?ml$/",
+        "/\\.nix$/",
+        "/\\.sh$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n.*?[:=]\\s*\"?(?<currentValue>[^\"\\s]+)\"?"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "flux"
+      ],
+      "matchPackageNames": [
+        "fluxcd/flux2"
+      ],
+      "groupName": "flux"
+    },
+    {
+      "matchUpdateTypes": [
+        "patch",
+        "digest",
+        "pin"
+      ],
+      "automerge": true
+    },
+    {
+      "matchManagers": [
+        "nix"
+      ],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "labels": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "NixOS channel bumps need manual review",
+      "matchManagers": [
+        "nix"
+      ],
+      "matchDepNames": [
+        "nixpkgs"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "automerge": false,
+      "labels": [
+        "nixos-release"
+      ]
+    },
+    {
+      "description": "apiVersion tracking is noise",
+      "matchDatasources": [
+        "kubernetes-api"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Pin qbittorrent to digest to also catch linuxserver rebuilds of the same version tag",
+      "matchPackageNames": [
+        "lscr.io/linuxserver/qbittorrent"
+      ],
+      "pinDigests": true
+    },
+    {
+      "description": "Home Assistant chart bumps usually ship a new HA release - review manually",
+      "matchManagers": [
+        "flux"
+      ],
+      "matchPackageNames": [
+        "home-assistant"
+      ],
+      "automerge": false
+    }
+  ]
+}
