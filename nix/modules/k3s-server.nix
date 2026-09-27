@@ -20,6 +20,8 @@ in
   };
 
   config = {
+    boot.supportedFilesystems = [ "nfs" ];
+
     sops.secrets."k3s.agent.token" = { };
     sops.secrets."k3s.server.token" = { };
 

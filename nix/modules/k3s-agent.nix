@@ -1,6 +1,8 @@
 { config, cluster, ... }:
 
 {
+  boot.supportedFilesystems = [ "nfs" ];
+
   sops.secrets."k3s.agent.token" = { };
 
   services.k3s = {
@@ -9,7 +11,6 @@
     tokenFile = config.sops.secrets."k3s.agent.token".path;
     serverAddr = "https://${cluster.serverHost}:6443";
   };
-
   networking.firewall.allowedTCPPorts = [
     9100 # prometheus node exporter
     10250 # k3s Kubelet metrics and API
