@@ -5,7 +5,6 @@
     ../../modules/boot-systemd.nix
     ../../modules/firewall.nix
     ../../modules/headless.nix
-    ../../modules/wireless.nix
     ../../modules/ssh.nix
     ../../modules/k3s-agent.nix
     ../../modules/hass-backbone.nix
