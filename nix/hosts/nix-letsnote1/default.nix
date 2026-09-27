@@ -14,4 +14,5 @@
   ];
 
   networking.hostName = "nix-letsnote1";
+  lab.k3s.clusterInit = true;
 }
