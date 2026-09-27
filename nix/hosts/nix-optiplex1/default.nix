@@ -10,6 +10,7 @@
     ../../modules/users/operator.nix
     ../../modules/zfs.nix
     ../../disko/tank.nix
+    ../../modules/nfs-server.nix
     ./hardware-configuration.nix
   ];
 
