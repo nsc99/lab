@@ -28,19 +28,19 @@ creation_rules:
     key_groups:
     - age:
       - *operator
-      - *nix-letsnote2
+      - *nix-optiplex2
 
   - path_regex: nix/secrets/mosquitto.yaml
     key_groups:
     - age:
       - *operator
-      - *nix-letsnote2
+      - *nix-optiplex2
 
   - path_regex: nix/secrets/z2m-devices.enc
     key_groups:
     - age:
       - *operator
-      - *nix-letsnote2
+      - *nix-optiplex2
 
   - path_regex: cluster/.*\.ya?ml$
     encrypted_regex: ^(data|stringData)$

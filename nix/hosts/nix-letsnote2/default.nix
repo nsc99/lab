@@ -7,7 +7,6 @@
     ../../modules/headless.nix
     ../../modules/ssh.nix
     ../../modules/k3s-agent.nix
-    ../../modules/hass-backbone.nix
     ../../modules/users/operator.nix
     ./hardware-configuration.nix
   ];

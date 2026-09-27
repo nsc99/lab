@@ -6,6 +6,7 @@
     ../../modules/firewall.nix
     ../../modules/headless.nix
     ../../modules/ssh.nix
+    ../../modules/hass-backbone.nix
     ../../modules/k3s-server.nix
     ../../modules/users/operator.nix
     ./hardware-configuration.nix
