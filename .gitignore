@@ -1,5 +1,6 @@
 .envrc
 .pre-commit-config.yaml
 .direnv/
+.vscode
 
 **/test
