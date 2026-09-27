@@ -2,10 +2,10 @@
   lib,
   config,
   pkgs,
+  cluster,
   ...
 }:
 let
-  cluster = import ../cluster.nix;
   inherit (cluster)
     hosts
     hostDomain
