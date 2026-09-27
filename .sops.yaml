@@ -3,6 +3,8 @@ keys:
   - &nix-thinkpad age1zkftm4fhsuv4gscxwqrxp5jfkhr7u63wsxdehhw0w0cd4kutzy9szzrhy9
   - &nix-letsnote1 age1ms8xr24y5yy0s2se255v8vy2s602twyjqwdlswq0jf50f3ty6cjsuczrev
   - &nix-letsnote2 age1jck0p00460dyqnvsns20pz0xg7ecu0eg2amtqlvtd88jypl47cfq23sjwv
+  - &nix-optiplex1 age1w8f4ajl5mgvlncq3tplmlv0f4q8kqz9rrq3yej6g94saeu6jpelqggl23m
+  - &nix-optiplex2 age1jg4c287extrgkhph23zd3gfzf09ldxqdnaraj9n7rgm28neggs6stggz9l
 creation_rules:
   - path_regex: nix/secrets/base.yaml
     key_groups:
@@ -11,12 +13,16 @@ creation_rules:
       - *nix-thinkpad
       - *nix-letsnote1
       - *nix-letsnote2
+      - *nix-optiplex1
+      - *nix-optiplex2
 
   - path_regex: nix/secrets/sops-age.enc
     key_groups:
     - age:
       - *operator
       - *nix-letsnote1
+      - *nix-optiplex1
+      - *nix-optiplex2
 
   - path_regex: nix/secrets/zigbee2mqtt.yaml
     key_groups:
