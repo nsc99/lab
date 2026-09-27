@@ -1,8 +1,5 @@
 { config, cluster, ... }:
 
-let
-  serverHost = cluster.serverHost;
-in
 {
   sops.secrets."k3s.agent.token" = { };
 
@@ -10,12 +7,12 @@ in
     enable = true;
     role = "agent";
     tokenFile = config.sops.secrets."k3s.agent.token".path;
-    serverAddr = "https://${serverHost}:6443";
+    serverAddr = "https://${cluster.serverHost}:6443";
   };
 
   networking.firewall.allowedTCPPorts = [
     9100 # prometheus node exporter
-    10250 # k3s Kubelet metrics and API    6443 # k3s server kubernetes api
+    10250 # k3s Kubelet metrics and API
     7946 # MetalLB L2
   ];
 
