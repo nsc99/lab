@@ -9,6 +9,8 @@
     };
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
     pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -17,6 +19,7 @@
       nixpkgs,
       sops-nix,
       pre-commit-hooks,
+      disko,
     }:
     let
       cluster = import ./cluster.nix;
@@ -37,6 +40,7 @@
           modules = [
             ./hosts/${hostname}
             sops-nix.nixosModules.sops
+            disko.nixosModules.disko
           ];
         };
     in
@@ -56,6 +60,7 @@
           packages = with pkgs; [
             nixfmt
             nil
+            nixd
           ];
         };
       });
