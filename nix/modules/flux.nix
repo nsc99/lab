@@ -1,10 +1,26 @@
-{ pkgs, ... }:
+{ pkgs, cluster, ... }:
 let
   fluxVersion = "2.8.6";
   fluxInstallManifest = pkgs.fetchurl {
     url = "https://github.com/fluxcd/flux2/releases/download/v${fluxVersion}/install.yaml";
     sha256 = "sha256:cb6dadb9f2525dd6665c1cd3f206ef0078e912499e923278844cc8a47906e93c";
   };
+
+  clusterSettings = pkgs.writeText "cluster-settings.yaml" (
+    builtins.toJSON {
+      apiVersion = "v1";
+      kind = "ConfigMap";
+      metadata = {
+        name = "cluster-settings";
+        namespace = "flux-system";
+      };
+      data = {
+        NFS_HOST = cluster.hosts.${cluster.nfsHost};
+        INGRESS_IP = cluster.ingressIP;
+        EXTERNAL_DOMAIN = cluster.externalDomain;
+      };
+    }
+  );
 in
 {
   sops.secrets."sops-age-manifest" = {
@@ -24,5 +40,6 @@ in
     "01-namespace.yaml".source = ../config/manifests/flux-namespace.yaml;
     "02-install.yaml".source = fluxInstallManifest;
     "03-sync.yaml".source = ../config/manifests/flux-sync.yaml;
+    "04-cluster-settings.yaml".source = clusterSettings;
   };
 }

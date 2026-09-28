@@ -37,14 +37,14 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
-        - host: home.schweigert.io
+        - host: home.${EXTERNAL_DOMAIN}
           paths:
             - path: /
               pathType: Prefix
       tls:
         - secretName: home-assistant-tls
           hosts:
-            - home.schweigert.io
+            - home.${EXTERNAL_DOMAIN}
     configuration:
       enabled: true
       forceInit: true

@@ -1,5 +1,6 @@
 {
   serverHost = "nix-letsnote1.lab"; # etcd bootstrap node, join target for new servers
+  nfsHost = "nix-optiplex1";
   hosts = {
     nix-optiplex1 = "192.168.178.100";
     nix-optiplex2 = "192.168.178.101";
