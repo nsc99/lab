@@ -10,9 +10,9 @@ spec:
   tls:
     - secretName: mokuro-bunko-tls
       hosts:
-        - bunko.schweigert.io
+        - bunko.${EXTERNAL_DOMAIN}
   rules:
-    - host: bunko.schweigert.io
+    - host: bunko.${EXTERNAL_DOMAIN}
       http:
         paths:
           - path: /

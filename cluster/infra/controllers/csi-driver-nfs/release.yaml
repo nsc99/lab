@@ -1,0 +1,24 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: csi-driver-nfs
+  namespace: kube-system
+spec:
+  interval: 15m
+  timeout: 5m
+  chart:
+    spec:
+      chart: csi-driver-nfs
+      version: v4.13.4
+      sourceRef:
+        kind: HelmRepository
+        name: csi-driver-nfs
+        namespace: kube-system
+  releaseName: csi-driver-nfs
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3

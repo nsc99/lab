@@ -8,4 +8,4 @@ spec:
   valuesContent: |-
     service:
       annotations:
-        metallb.io/loadBalancerIPs: 192.168.178.240
+        metallb.io/loadBalancerIPs: ${INGRESS_IP}

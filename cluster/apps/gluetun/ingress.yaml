@@ -10,9 +10,9 @@ spec:
   tls:
     - secretName: qbittorrent-tls
       hosts:
-        - q.schweigert.io
+        - q.${EXTERNAL_DOMAIN}
   rules:
-    - host: q.schweigert.io
+    - host: q.${EXTERNAL_DOMAIN}
       http:
         paths:
           - path: /
