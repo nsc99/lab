@@ -5,3 +5,4 @@ resources:
   - gluetun
   - home-assistant
   - mokuro-bunko
+  - jellyfin
