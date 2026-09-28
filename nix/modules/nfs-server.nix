@@ -27,7 +27,7 @@ in
 
   systemd.tmpfiles.rules = [
     "d /tank/media                 0775 media media -"
-    "d /tank/backup                 0775 backup backup -"
+    "d /tank/backups               0775 backup backup -"
   ];
 
   services.nfs = {
@@ -36,7 +36,7 @@ in
       exports = ''
         ${root}/media   ${exportTo nodes "rw,async,no_subtree_check,${squashTo mediaId}"} ${lan}(ro,no_subtree_check,all_squash)
         ${root}/k8s     ${exportTo nodes "rw,sync,no_subtree_check,no_root_squash"}
-        ${root}/backup  ${exportTo nodes "rw,sync,no_subtree_check,${squashTo backupId}"}
+        ${root}/backups ${exportTo nodes "rw,sync,no_subtree_check,${squashTo backupId}"}
       '';
     };
 
