@@ -73,9 +73,9 @@ spec:
             - name: "TZ"
               value: "Europe/Berlin"
             - name: "PUID"
-              value: "1000"
+              value: "2000"
             - name: "PGID"
-              value: "1000"
+              value: "2000"
             - name: "WEBUI_PORT"
               value: "8080"
           ports:
@@ -98,10 +98,9 @@ spec:
       
       volumes:
         - name: "qbittorrent-config"
-          emptyDir:
-            sizeLimit: 500Mi
-            medium: Memory
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
         - name: "qbittorrent-media"
-          emptyDir:
-            sizeLimit: 500Mi
-            medium: Memory
+          nfs:
+            server: ${NFS_HOST}
+            path: /tank/media
