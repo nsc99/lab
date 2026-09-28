@@ -70,6 +70,7 @@ in
           options = {
             recordsize = "64K";
             "com.sun:auto-snapshot" = "true";
+            mountpoint = "legacy";
           };
         };
 
@@ -78,6 +79,7 @@ in
           mountpoint = "/tank/media";
           options = {
             recordsize = "1M";
+            mountpoint = "legacy";
           };
         };
 
@@ -86,6 +88,7 @@ in
           mountpoint = "/tank/backups";
           options = {
             recordsize = "1M";
+            mountpoint = "legacy";
             compression = "zstd";
             "com.sun:auto-snapshot" = "true";
           };

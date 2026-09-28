@@ -50,8 +50,9 @@ in
 
   networking.firewall.allowedTCPPorts = [ 2049 ];
 
-  systemd.services.nfs-server = {
-    after = [ "zfs-mount.service" ];
-    requires = [ "zfs-mount.service" ];
-  };
+  systemd.services.nfs-server.unitConfig.RequiresMountsFor = [
+    "/tank/media"
+    "/tank/k8s"
+    "/tank/backups"
+  ];
 }
