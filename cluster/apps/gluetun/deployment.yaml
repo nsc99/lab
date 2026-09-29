@@ -27,8 +27,13 @@ spec:
       initContainers:
         - name: "gluetun"
           restartPolicy: "Always"
-          image: "ghcr.io/qdm12/gluetun:v3.41.0"
+          image: "ghcr.io/qdm12/gluetun:v3.41.3"
           imagePullPolicy: "IfNotPresent"
+          startupProbe:
+            exec:
+              command: ["/gluetun-entrypoint", "healthcheck"]
+            periodSeconds: 5
+            failureThreshold: 24
           securityContext:
             capabilities:
               add:
