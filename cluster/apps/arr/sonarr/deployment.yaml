@@ -1,0 +1,74 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: arr
+  labels:
+    app.kubernetes.io/name: sonarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sonarr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sonarr
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: sonarr
+          image: ghcr.io/linuxserver/sonarr:4.0.20.3014-ls326
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 250m
+              memory: 2Gi
+          env:
+            - name: TZ
+              value: Europe/Berlin
+            - name: PUID
+              value: "2000"
+            - name: PGID
+              value: "2000"
+          ports:
+            - name: http
+              containerPort: 8989
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          volumeMounts:
+            - name: sonarr-config
+              mountPath: /config
+            - name: sonarr-media
+              mountPath: /media
+      volumes:
+        - name: "sonarr-config"
+          persistentVolumeClaim:
+            claimName: sonarr-config
+        - name: "sonarr-media"
+          nfs:
+            server: ${NFS_HOST}
+            path: /tank/media
