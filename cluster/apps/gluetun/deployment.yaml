@@ -27,8 +27,13 @@ spec:
       initContainers:
         - name: "gluetun"
           restartPolicy: "Always"
-          image: "ghcr.io/qdm12/gluetun:v3.41.0"
+          image: "ghcr.io/qdm12/gluetun:v3.41.3"
           imagePullPolicy: "IfNotPresent"
+          startupProbe:
+            exec:
+              command: ["/gluetun-entrypoint", "healthcheck"]
+            periodSeconds: 5
+            failureThreshold: 24
           securityContext:
             capabilities:
               add:
@@ -73,9 +78,9 @@ spec:
             - name: "TZ"
               value: "Europe/Berlin"
             - name: "PUID"
-              value: "1000"
+              value: "2000"
             - name: "PGID"
-              value: "1000"
+              value: "2000"
             - name: "WEBUI_PORT"
               value: "8080"
           ports:
@@ -98,10 +103,9 @@ spec:
       
       volumes:
         - name: "qbittorrent-config"
-          emptyDir:
-            sizeLimit: 500Mi
-            medium: Memory
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
         - name: "qbittorrent-media"
-          emptyDir:
-            sizeLimit: 500Mi
-            medium: Memory
+          nfs:
+            server: ${NFS_HOST}
+            path: /tank/media
