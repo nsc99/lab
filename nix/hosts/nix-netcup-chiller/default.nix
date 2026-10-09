@@ -3,7 +3,6 @@
   imports = [
     ../../modules/base.nix
     ../../modules/boot-systemd.nix
-    ../../modules/firewall.nix
     ../../modules/headless.nix
     ../../modules/ssh.nix
     ../../modules/tailscale.nix
