@@ -1,4 +1,7 @@
 { cluster, ... }:
+let
+  backend = "ipv4@traefik-public.tail1b93f7.ts.net:8443";
+in
 {
   networking.firewall.allowedTCPPorts = [ 443 ];
 
@@ -6,7 +9,7 @@
     enable = true;
     config = ''
       global
-        log /dev/log local0
+        log /dev/log local0 info notice
         maxconn 2000
 
       defaults
@@ -33,7 +36,7 @@
         default_backend drop
 
       backend homelab
-        server traefik traefik-public.tail1b93f7.ts.net:8443 send-proxy-v2 check check-send-proxy inter 10s
+        server traefik ${backend} send-proxy-v2 check check-send-proxy inter 10s
 
       backend drop
         tcp-request content reject
