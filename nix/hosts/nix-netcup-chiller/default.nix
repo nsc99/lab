@@ -6,6 +6,8 @@
     ../../modules/firewall.nix
     ../../modules/headless.nix
     ../../modules/ssh.nix
+    ../../modules/tailscale.nix
+    ../../modules/edge-relay.nix
     ../../modules/users/operator.nix
     ../../disko/netcup-vps.nix
     ./hardware-configuration.nix

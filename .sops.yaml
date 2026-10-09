@@ -5,6 +5,7 @@ keys:
   - &nix-letsnote2 age1jck0p00460dyqnvsns20pz0xg7ecu0eg2amtqlvtd88jypl47cfq23sjwv
   - &nix-optiplex1 age1w8f4ajl5mgvlncq3tplmlv0f4q8kqz9rrq3yej6g94saeu6jpelqggl23m
   - &nix-optiplex2 age1jg4c287extrgkhph23zd3gfzf09ldxqdnaraj9n7rgm28neggs6stggz9l
+  - &nix-netcup-chiller age1yfrc50yrha5rjgtan6n3d5wrtn9mn6tg37x609m5vdk96pa3mf2qgvsarn
 creation_rules:
   - path_regex: nix/secrets/base.yaml
     key_groups:
@@ -41,6 +42,12 @@ creation_rules:
     - age:
       - *operator
       - *nix-optiplex2
+
+  - path_regex: nix/secrets/tailscale.yaml
+    key_groups:
+    - age:
+      - *operator
+      - *nix-netcup-chiller
 
   - path_regex: cluster/.*\.ya?ml$
     encrypted_regex: ^(data|stringData)$
