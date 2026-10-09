@@ -7,6 +7,8 @@
     openFirewall = true;
     authKeyFile = config.sops.secrets."tailscale/authkey".path;
     authKeyParameters.preauthorized = true;
+    useRoutingFeatures = "client";
+    extraSetFlags = [ "--accept-routes" ];
     extraUpFlags = [
       "--advertise-tags=tag:vps"
     ];
