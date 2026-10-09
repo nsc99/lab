@@ -6,3 +6,4 @@ resources:
   - monitoring
   - metallb
   - csi-driver-nfs
+  - tailscale

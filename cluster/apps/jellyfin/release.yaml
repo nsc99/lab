@@ -33,6 +33,7 @@ spec:
       className: 'traefik'
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure,public
       hosts:
         - host: jellyfin.${EXTERNAL_DOMAIN}
           paths:
