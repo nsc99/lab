@@ -9,13 +9,19 @@ spec:
     service:
       annotations:
         metallb.io/loadBalancerIPs: ${INGRESS_IP}
+        ports:
     ports:
+      web:
+        asDefault: true
+      websecure:
+        asDefault: true
       public:
         port: 9443
         exposedPort: 8443
         protocol: TCP
-        tls:
-          enabled: true
+        http:
+          tls:
+            enabled: true
         proxyProtocol:
           trustedIPs:
             - 10.42.0.0/16
