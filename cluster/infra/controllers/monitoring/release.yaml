@@ -62,10 +62,10 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-prod"
         hosts:
-          - grafana.schweigert.io
+          - grafana.${EXTERNAL_DOMAIN}
         path: /
         pathType: Prefix
         tls:
           - secretName: grafana-tls
             hosts:
-              - grafana.schweigert.io
+              - grafana.${EXTERNAL_DOMAIN}

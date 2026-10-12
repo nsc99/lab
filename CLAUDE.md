@@ -67,7 +67,7 @@ Three Flux Kustomizations defined in `nix/config/manifests/flux-sync.yaml`, appl
 Each directory has a `kustomization.yaml`; a new component must be added to its parent's `resources` list or Flux will ignore it.
 
 Conventions:
-- **Variable substitution**: `infra-configs` and `apps` use `postBuild.substituteFrom` on the `cluster-settings` ConfigMap, so manifests use `${NFS_HOST}`, `${INGRESS_IP}`, `${EXTERNAL_DOMAIN}`. New variables must be added in `nix/modules/flux.nix` (and `cluster.nix`). Literal `${...}` meant for the target (e.g. CSI `subDir`) must be escaped as `$${...}`. `infra-controllers` does *not* get substitution.
+- **Variable substitution**: all three stages use `postBuild.substituteFrom` on the `cluster-settings` ConfigMap, so manifests use `${NFS_HOST}`, `${INGRESS_IP}`, `${EXTERNAL_DOMAIN}`. New variables must be added in `nix/modules/flux.nix` (and `cluster.nix`). Literal `${...}` meant for the target (e.g. CSI `subDir`) must be escaped as `$${...}`.
 - **Helm apps**: `repository.yaml` (HelmRepository) + `release.yaml` (HelmRelease) in the app's namespace. Plain apps use deployment/service/ingress/pvc files.
 - **Ingress**: traefik (k3s built-in, servicelb disabled; LoadBalancer IP from MetalLB). TLS via cert-manager annotation `cert-manager.io/cluster-issuer: letsencrypt-prod` with hosts `<name>.${EXTERNAL_DOMAIN}`.
 - **Public exposure**: only routes that add the `public` entrypoint (`traefik.ingress.kubernetes.io/router.entrypoints: websecure,public`) are reachable from the internet. Path: VPS `nix-netcup-chiller` (HAProxy SNI passthrough in `modules/edge-relay.nix`) → Tailscale → `traefik-public` service → traefik `public` entrypoint (PROXY protocol). Everything else is LAN/tailnet only.
