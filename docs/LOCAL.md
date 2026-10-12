@@ -50,6 +50,25 @@ local/cluster.sh up        # VM + k3s + flux, then syncs the working tree (~10 m
 
 `local/cluster.sh stop` keeps the VM for next time; `destroy` deletes it.
 
+## Sharing the VM between worktrees
+
+There is one VM, `lab-local`, for all worktrees. Its kubeconfig, the
+WireGuard keys of the [fixtures](#fixtures) and the Flux install cache live
+in `${XDG_STATE_HOME:-~/.local/state}/lab-local`, not in the worktree (`up`
+re-creates the kubeconfig there for a VM that already runs).
+
+A lease in that directory gives one worktree at a time the cluster. `up`,
+`sync`, `verify`, `kubectl`, `flux`, `k9s`, `shell`, `stop` and `destroy` take
+it; while another worktree holds it they log the holder and wait. A lease
+expires once its holder runs no command for `LOCAL_LEASE_TTL` seconds (default
+1800), or when its worktree is deleted. Taking over a lease logs the branch the
+cluster was left with; `sync master` resets it to prod.
+
+```sh
+local/cluster.sh lease     # who holds it (status shows it too)
+local/cluster.sh release   # done with the cluster: let the next worktree in
+```
+
 ## How it maps to prod
 
 | | prod | local |
@@ -94,7 +113,8 @@ add an override there in the same change.
 `local/fixtures/` holds local stand-ins for external services, so the
 workloads that need them can run for real instead of being switched off.
 `cluster.sh sync` applies them with kubectl (outside Flux) together with the
-Secrets it generates; keys live in `local/.state/vpn` and survive syncs.
+Secrets it generates; keys live in `~/.local/state/lab-local/vpn` and survive
+syncs.
 
 - **vpn-endpoint** (ns `local-fixtures`, `10.43.0.51:51820/udp`): a WireGuard
   server that NATs into the pod network. gluetun uses it as a `custom`
