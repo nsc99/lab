@@ -41,7 +41,6 @@ spec:
                   cpu: 10m
                   memory: 32Mi
                 limits:
-                  cpu: 200m
                   memory: 128Mi
               env:
                 - name: EXTERNAL_DOMAIN
@@ -87,7 +86,6 @@ spec:
                   cpu: 50m
                   memory: 128Mi
                 limits:
-                  cpu: 500m
                   memory: 512Mi
               env:
                 # Fail the Job (and keep it visible) instead of logging and exiting 0.
