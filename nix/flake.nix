@@ -85,19 +85,33 @@
         };
       });
 
-      checks = forAllSystems (pkgs: {
-        pre-commit-check = pre-commit-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
-          src = ./.;
-          hooks.nixfmt.enable = true;
-          hooks.deadnix.enable = true;
-          hooks.gitleaks = {
-            enable = true;
-            name = "gitleaks";
-            entry = "${pkgs.gitleaks}/bin/gitleaks protect --verbose --redact --staged";
-            package = pkgs.gitleaks;
-            pass_filenames = false;
+      checks = forAllSystems (
+        pkgs:
+        let
+          inherit (pkgs) lib;
+          system = pkgs.stdenv.hostPlatform.system;
+          hostsForSystem = lib.filterAttrs (
+            _: cfg: cfg.pkgs.stdenv.hostPlatform.system == system
+          ) self.nixosConfigurations;
+          toplevelsForSystem = lib.mapAttrs' (
+            name: cfg: lib.nameValuePair "${name}" cfg.config.system.build.toplevel
+          ) hostsForSystem;
+        in
+        {
+          pre-commit-check = pre-commit-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
+            src = ./.;
+            hooks.nixfmt.enable = true;
+            hooks.deadnix.enable = true;
+            hooks.gitleaks = {
+              enable = true;
+              name = "gitleaks";
+              entry = "${pkgs.gitleaks}/bin/gitleaks protect --verbose --redact --staged";
+              package = pkgs.gitleaks;
+              pass_filenames = false;
+            };
           };
-        };
-      });
+          nixos-configs = pkgs.linkFarm "all-systems" toplevelsForSystem;
+        }
+      );
     };
 }
