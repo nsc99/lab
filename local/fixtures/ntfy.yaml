@@ -1,0 +1,60 @@
+# ntfy server standing in for ntfy.sh and healthchecks.io: local/cluster.sh
+# points Grafana's contact points (grafana-alerting Secret) at its `alerts`
+# and `deadman` topics, so local alerts never reach the phone and prod's
+# dead-man check never gets pings from the local cluster.
+# `local/cluster.sh verify` polls both topics.
+#
+# local/cluster.sh applies the grafana-alerting Secret with the fixtures,
+# before Flux has created the namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ntfy
+  namespace: local-fixtures
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ntfy
+  template:
+    metadata:
+      labels:
+        app: ntfy
+    spec:
+      containers:
+        - name: ntfy
+          image: ntfy
+          args: ["serve"]
+          env:
+            - name: NTFY_BASE_URL
+              value: http://ntfy.local-fixtures.svc.cluster.local
+            - name: NTFY_LISTEN_HTTP
+              value: ":80"
+            # Webhook bodies (healthchecks) over 4 KiB become attachments.
+            - name: NTFY_ATTACHMENT_CACHE_DIR
+              value: /tmp/attachments
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /v1/health
+              port: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ntfy
+  namespace: local-fixtures
+spec:
+  selector:
+    app: ntfy
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

@@ -35,6 +35,16 @@ spec:
     kubeProxy:
       enabled: false
 
+    # Grafana Alerting sends the notifications (cluster/infra/configs/monitoring/
+    # grafana-alerting.yaml); Prometheus only evaluates the rules.
+    alertmanager:
+      enabled: false
+    defaultRules:
+      rules:
+        alertmanager: false
+      disabled:
+        PrometheusNotConnectedToAlertmanagers: true
+
     prometheus:
       prometheusSpec:
         scrapeInterval: 1m
@@ -55,6 +65,18 @@ spec:
         existingSecret: grafana
         userKey: admin_username
         passwordKey: admin_password
+
+      # Links in notifications.
+      grafana.ini:
+        server:
+          root_url: https://grafana.${EXTERNAL_DOMAIN}
+
+      sidecar:
+        alerts:
+          enabled: true
+        datasources:
+          alertmanager:
+            enabled: false
 
       ingress:
         enabled: true
