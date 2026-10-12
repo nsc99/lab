@@ -281,8 +281,11 @@ apply_fixtures() {
     }' | apply_local
   jq -n --arg ntfy http://ntfy.local-fixtures.svc.cluster.local '{
     apiVersion: "v1", kind: "Secret",
-    metadata: {name: "grafana-alerting", namespace: "monitoring"},
-    stringData: {NTFY_URL: "\($ntfy)/alerts", HEALTHCHECKS_URL: "\($ntfy)/deadman"}
+    metadata: {name: "grafana-alerting", namespace: "monitoring", labels: {grafana_alert: "1"}},
+    stringData: {"contact-point-urls.yaml": ({apiVersion: 1, templates: [{
+      orgId: 1, name: "contact-point-urls",
+      template: "{{ define \"ntfy.url\" }}\($ntfy)/alerts{{ end }}{{ define \"healthchecks.url\" }}\($ntfy)/deadman{{ end }}"
+    }]} | tojson)}
   }' | apply_local
 }
 
@@ -416,6 +419,8 @@ verify_alerting() {
   # not resolved yet in Grafana; "firing" skips that run's resolved message.
   log "alerting: a firing Prometheus alert reaches ntfy"
   since=$(date +%s)
+  # Not Flux's, so sync never prunes it: also on Ctrl-C or die.
+  trap 'kubectl -n monitoring delete prometheusrule local-verify --ignore-not-found >/dev/null; lease_exit' EXIT
   kubectl apply -f - >/dev/null <<EOF
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -434,11 +439,9 @@ spec:
             severity: warning
             verify_run: "$since"
 EOF
-  wait_ntfy alerts "$since" "firing LocalVerify" || {
-    kubectl -n monitoring delete prometheusrule local-verify >/dev/null
-    die "LocalVerify did not reach the alerts topic"
-  }
+  wait_ntfy alerts "$since" "firing LocalVerify" || die "LocalVerify did not reach the alerts topic"
   kubectl -n monitoring delete prometheusrule local-verify >/dev/null
+  trap lease_exit EXIT
 }
 
 # Waits up to 10 minutes for a message on ntfy topic $1 since $2 (unix time or

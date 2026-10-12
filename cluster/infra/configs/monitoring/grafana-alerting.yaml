@@ -9,9 +9,8 @@
 # healthchecks.io alerts when the pings stop (Prometheus, Grafana or the lab
 # down). Everything else goes to ntfy.
 #
-# Contact point URLs come from the grafana-alerting Secret (envFromSecret in
-# the HelmRelease). Grafana expands $__env{} in contact points; it leaves the
-# query and annotations alone.
+# The contact point URLs are secret: they render the ntfy.url and
+# healthchecks.url templates from the grafana-alerting Secret.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -20,7 +19,7 @@ metadata:
   labels:
     grafana_alert: "1"
   annotations:
-    # $__env, $1 and $labels below must reach Grafana verbatim.
+    # $1 and $labels below must reach Grafana verbatim.
     kustomize.toolkit.fluxcd.io/substitute: disabled
 data:
   alerting.yaml: |
@@ -33,13 +32,9 @@ data:
           - uid: ntfy
             type: webhook
             settings:
-              url: $__env{NTFY_URL}?template=grafana
-              # The topic is public to whoever knows it: alert names and
-              # namespaces only, no labels (serials, IPs) or links.
-              title: '{{ or .CommonLabels.prom_alertname .CommonLabels.alertname }}'
-              message: |-
-                {{ range .Alerts }}{{ .Status }} {{ or .Labels.prom_alertname .Labels.alertname }}{{ with .Labels.namespace }} in {{ . }}{{ end }}
-                {{ end }}
+              url: '{{ template "ntfy.url" . }}?template=grafana'
+              payload:
+                template: '{{ template "ntfy.payload" . }}'
       - orgId: 1
         name: healthchecks
         receivers:
@@ -48,12 +43,34 @@ data:
             # A resolved Watchdog must not count as a ping.
             disableResolveMessage: true
             settings:
-              url: $__env{HEALTHCHECKS_URL}
+              url: '{{ template "healthchecks.url" . }}'
+
+    # ntfy's grafana template reads status, title and message. The topic is
+    # public to whoever knows it, so the body carries alert names and
+    # namespaces only: without a payload, Grafana sends every label (serials,
+    # IPs) and links.
+    templates:
+      - orgId: 1
+        name: ntfy
+        template: |
+          {{ define "ntfy.payload" -}}
+          {{ coll.Dict
+               "status" .Status
+               "title" (or .CommonLabels.prom_alertname .CommonLabels.alertname)
+               "message" (tmpl.Exec "ntfy.message" .)
+             | data.ToJSON }}
+          {{- end }}
+          {{ define "ntfy.message" -}}
+          {{ range .Alerts }}{{ .Status }} {{ or .Labels.prom_alertname .Labels.alertname }}{{ with .Labels.namespace }} in {{ . }}{{ end }}
+          {{ end }}
+          {{- end }}
 
     policies:
       - orgId: 1
         receiver: ntfy
-        group_by: [prom_alertname]
+        # alertname keeps DatasourceNoData and DatasourceError (no
+        # prom_alertname) apart.
+        group_by: [alertname, prom_alertname]
         group_wait: 30s
         group_interval: 5m
         repeat_interval: 12h

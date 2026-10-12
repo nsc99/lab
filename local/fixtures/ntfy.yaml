@@ -4,8 +4,8 @@
 # dead-man check never gets pings from the local cluster.
 # `local/cluster.sh verify` polls both topics.
 #
-# The grafana-alerting Secret must exist before Flux's infra-controllers stage
-# creates the namespace, or Grafana cannot start.
+# local/cluster.sh applies the grafana-alerting Secret with the fixtures,
+# before Flux has created the namespace.
 apiVersion: v1
 kind: Namespace
 metadata:

@@ -3,6 +3,5 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - secret-grafana.yaml
-  - secret-grafana-alerting.yaml
   - repository.yaml
   - release.yaml

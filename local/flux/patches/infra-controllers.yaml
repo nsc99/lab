@@ -21,17 +21,3 @@ spec:
         metadata:
           name: operator-oauth
           namespace: tailscale
-    # Prod's ntfy topic and healthchecks.io ping URL: local alerts would reach
-    # the phone and local Watchdog pings would mask prod being down. The Secret
-    # is not Flux's: local/cluster.sh points it at local/fixtures/ntfy.yaml.
-    # target: makes this a no-op where the Secret does not exist (sync <ref>).
-    - target:
-        kind: Secret
-        name: grafana-alerting
-        namespace: monitoring
-      patch: |-
-        $patch: delete
-        apiVersion: v1
-        kind: Secret
-        metadata:
-          name: grafana-alerting

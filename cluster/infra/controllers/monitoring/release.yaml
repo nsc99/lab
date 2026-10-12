@@ -71,9 +71,6 @@ spec:
         server:
           root_url: https://grafana.schweigert.io
 
-      # Contact point URLs: NTFY_URL (https://ntfy.sh/<topic>, no query string)
-      # and HEALTHCHECKS_URL (https://hc-ping.com/<uuid>).
-      envFromSecret: grafana-alerting
       sidecar:
         alerts:
           enabled: true
