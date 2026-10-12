@@ -69,7 +69,7 @@ spec:
       # Links in notifications.
       grafana.ini:
         server:
-          root_url: https://grafana.schweigert.io
+          root_url: https://grafana.${EXTERNAL_DOMAIN}
 
       sidecar:
         alerts:
