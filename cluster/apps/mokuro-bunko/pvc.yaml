@@ -1,3 +1,6 @@
+# Storage of the 0.1.0 self-build (upstream 0.2.0 layout), which 0.7 cannot take
+# over in place. Only read by the deployment's migrate initContainer; removed
+# together with it once the library is verified on 0.7.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -8,5 +11,20 @@ spec:
     requests:
       storage: 5Gi
   volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+---
+# 0.7 storage (/data) without the library: mokuro.db (SQLite, so not on NFS),
+# config.yaml, logs.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data
+  namespace: mokuro-bunko
+spec:
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
   accessModes:
     - ReadWriteOnce
