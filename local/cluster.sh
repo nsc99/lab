@@ -252,6 +252,7 @@ apply_flux_sync() {
 # Local stand-ins for external services (local/fixtures) and their Secrets.
 # The WireGuard keys are generated once and kept in $STATE/vpn; the gluetun
 # Secret also carries the qBittorrent login Sonarr uses, from the arr secret.
+# Grafana's contact points go to the local ntfy.
 apply_fixtures() {
   need wg sops
   local vpn="$STATE/vpn" k
@@ -278,6 +279,11 @@ apply_fixtures() {
         qbittorrent_username, qbittorrent_password
       }
     }' | apply_local
+  jq -n --arg ntfy http://ntfy.local-fixtures.svc.cluster.local '{
+    apiVersion: "v1", kind: "Secret",
+    metadata: {name: "grafana-alerting", namespace: "monitoring"},
+    stringData: {NTFY_URL: "\($ntfy)/alerts", HEALTHCHECKS_URL: "\($ntfy)/deadman"}
+  }' | apply_local
 }
 
 # Server-side, so it shares objects with Flux (the gluetun namespace) cleanly.
@@ -391,7 +397,60 @@ cmd_verify() {
   need kubectl jq
   require_cluster
   verify_gluetun
+  verify_alerting
   log "verify passed"
+}
+
+# Grafana Alerting: Watchdog pings the dead-man check and a firing Prometheus
+# alert reaches ntfy (both topics on the local/fixtures ntfy).
+verify_alerting() {
+  local since
+  since=$(date +%s)
+  kubectl -n local-fixtures rollout status deployment/ntfy --timeout=120s >/dev/null || die "ntfy is not available"
+
+  log "alerting: Watchdog pings the dead-man check"
+  # Only Watchdog is routed there; its body may arrive as an attachment.
+  wait_ntfy deadman "$since" '"event":"message"' || die "no ping on the deadman topic"
+
+  # verify_run makes a new alert instance even while the last run's one has
+  # not resolved yet in Grafana; "firing" skips that run's resolved message.
+  log "alerting: a firing Prometheus alert reaches ntfy"
+  since=$(date +%s)
+  kubectl apply -f - >/dev/null <<EOF
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: local-verify
+  namespace: monitoring
+  labels:
+    release: observability
+spec:
+  groups:
+    - name: local-verify
+      rules:
+        - alert: LocalVerify
+          expr: vector(1)
+          labels:
+            severity: warning
+            verify_run: "$since"
+EOF
+  wait_ntfy alerts "$since" "firing LocalVerify" || {
+    kubectl -n monitoring delete prometheusrule local-verify >/dev/null
+    die "LocalVerify did not reach the alerts topic"
+  }
+  kubectl -n monitoring delete prometheusrule local-verify >/dev/null
+}
+
+# Waits up to 10 minutes for a message on ntfy topic $1 since $2 (unix time or
+# "all") whose JSON matches $3.
+wait_ntfy() {
+  local deadline=$((SECONDS + 600)) out
+  # Not piped into grep -q: with pipefail an early grep exit fails the pipe.
+  until out=$(kubectl -n local-fixtures exec deployment/ntfy -- wget -qO- "http://localhost/$1/json?poll=1&since=$2") &&
+    [[ $out == *"$3"* ]]; do
+    ((SECONDS < deadline)) || return 1
+    sleep 10
+  done
 }
 
 # qBittorrent behind gluetun: traffic leaves through the tunnel, nothing gets
@@ -526,7 +585,7 @@ usage: local/cluster.sh <command> [args]
   status        flux + workload health of the local cluster
   check         CI checks (kustomize | kubeconform), nix eval of all hosts, flake check
   diff          read-only diff of the working tree against prod
-  verify        end-to-end checks against local/fixtures (qBittorrent/gluetun)
+  verify        end-to-end checks against local/fixtures (qBittorrent/gluetun, alerting)
   kubectl ...   kubectl against the local cluster
   flux ...      flux against the local cluster
   k9s           k9s against the local cluster

@@ -35,7 +35,8 @@ local/cluster.sh up        # VM + k3s + flux, then syncs the working tree (~10 m
    Poke around with `local/cluster.sh kubectl|flux|k9s ...`.
 5. **End-to-end checks** — `local/cluster.sh verify`: exercises what a healthy
    rollout does not prove (see [Fixtures](#fixtures)). Run it for changes
-   to gluetun, qBittorrent, the arr stack or the network path between them.
+   to gluetun, qBittorrent, the arr stack or the network path between them,
+   and for alerting (Prometheus rules, Grafana Alerting).
 6. **Diff against prod** — `local/cluster.sh diff`: read-only server-side dry
    run of the working tree against prod. It shows exactly what will change once
    merged.
@@ -119,6 +120,9 @@ syncs.
 - **vpn-endpoint** (ns `local-fixtures`, `10.43.0.51:51820/udp`): a WireGuard
   server that NATs into the pod network. gluetun uses it as a `custom`
   provider with the same firewall settings as on prod.
+- **ntfy** (ns `local-fixtures`): stands in for ntfy.sh and healthchecks.io.
+  The local `grafana-alerting` Secret points Grafana's contact points at its
+  `alerts` and `deadman` topics instead of the phone and prod's dead-man check.
 
 `local/cluster.sh verify` checks, and fails on the first problem:
 
@@ -131,6 +135,9 @@ syncs.
 3. `https://q.<domain>` accepts the qBittorrent login from the arr secret.
 4. A one-off `arr-config` job (Configarr) succeeds with the download client
    enabled, and Sonarr's download client test passes.
+5. A Watchdog ping arrives on the `deadman` topic during the run, and a
+   temporary `LocalVerify` PrometheusRule (`vector(1)`) arrives firing on the
+   `alerts` topic through Grafana Alerting (~5 min each).
 
 Not covered: Mullvad itself (server list, `SERVER_CITIES`), and real
 torrent traffic. For a gluetun major, a separate Mullvad device key (never
