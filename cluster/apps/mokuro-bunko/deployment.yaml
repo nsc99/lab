@@ -18,17 +18,52 @@ spec:
       labels:
         name: "mokuro-bunko"
     spec:
+      initContainers:
+        # One-off move from the 0.1.0 storage: the library (to NFS, where the
+        # export squashes every write to media) and per-user reading progress.
+        # Accounts are not carried over (fresh mokuro.db); recreate them with
+        # the same names to get their progress back.
+        - name: migrate
+          image: "docker.io/library/busybox:1.38.0"
+          command:
+            - sh
+            - -euc
+            - |
+              [ -e /data/.migrated ] && exit 0
+              cp -R /old/library/. /data/library/
+              cp -R /old/users /data/
+              chown -R 2000:2000 /data/users
+              touch /data/.migrated
+          volumeMounts:
+            - mountPath: "/old"
+              name: "old"
+              readOnly: true
+            - mountPath: "/data"
+              name: "data"
+            - mountPath: "/data/library"
+              name: "media"
+              subPath: "manga"
       containers:
         - name: "mokuro-bunko"
-          image: "ghcr.io/nsc99/mokuro-bunko:0.1.0"
+          # Server only; OCR comes from remote processors.
+          image: "ghcr.io/gnathonic/mokuro-bunko:0.7.2-lite"
           imagePullPolicy: "IfNotPresent"
+          env:
+            # media, as on the NFS export.
+            - name: PUID
+              value: "2000"
+            - name: PGID
+              value: "2000"
+            # traefik's pods, so login rate limits apply per client.
+            - name: MOKURO_SERVER_TRUSTED_PROXIES
+              value: "10.42.0.0/16"
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 2000m
-              memory: 2Gi
+              cpu: 1000m
+              memory: 512Mi
           ports:
             - containerPort: 8080
               protocol: "TCP"
@@ -43,8 +78,20 @@ spec:
               port: 8080
           volumeMounts:
             - mountPath: "/data"
-              name: "mokuro-bunko-data"
+              name: "data"
+            # Library on tank; mokuro.db stays on local-path (SQLite on NFS
+            # is unsafe).
+            - mountPath: "/data/library"
+              name: "media"
+              subPath: "manga"
       volumes:
-        - name: "mokuro-bunko-data"
+        - name: "old"
           persistentVolumeClaim:
             claimName: "mokuro-bunko-data"
+        - name: "data"
+          persistentVolumeClaim:
+            claimName: "data"
+        - name: "media"
+          nfs:
+            server: ${NFS_HOST}
+            path: /tank/media
