@@ -1,0 +1,33 @@
+---
+# Every node should run the NixOS channel and k3s minor the hosts are pinned
+# to (nix/flake.nix, nix/modules/k3s-*.nix). A node left behind after an
+# upgrade stops getting fixes once that release is EOL. Bump both patterns
+# with every channel/minor upgrade.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: host-drift
+  namespace: monitoring
+  labels:
+    release: observability
+  annotations:
+    # $labels in the templates below must reach Prometheus verbatim.
+    kustomize.toolkit.fluxcd.io/substitute: disabled
+spec:
+  groups:
+    - name: host-drift
+      rules:
+        - alert: NodeOsDrift
+          expr: kube_node_info{os_image!~"NixOS 26\\.05.*"}
+          for: 24h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.node }} runs {{ $labels.os_image }}, expected NixOS 26.05"
+        - alert: NodeKubeletDrift
+          expr: kube_node_info{kubelet_version!~"v1\\.35\\..*"}
+          for: 24h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.node }} runs kubelet {{ $labels.kubelet_version }}, expected v1.35.x"
