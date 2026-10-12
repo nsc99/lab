@@ -1,0 +1,110 @@
+---
+# Grafana Alerting, provisioned by the Grafana chart's alerts sidecar.
+#
+# Prometheus keeps evaluating the PrometheusRules (chart defaults and ours);
+# the Grafana rule below turns every firing Prometheus alert into a Grafana
+# alert instance. Grafana sets `alertname` to the rule title, so the Prometheus
+# name is copied to `prom_alertname`. Info/none severities only notify for
+# Watchdog, which is always firing and goes to healthchecks.io as a heartbeat:
+# healthchecks.io alerts when the pings stop (Prometheus, Grafana or the lab
+# down). Everything else goes to ntfy.
+#
+# Contact point URLs come from the grafana-alerting Secret (envFromSecret in
+# the HelmRelease). Grafana expands $__env{} in contact points; it leaves the
+# query and annotations alone.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+  annotations:
+    # $__env, $1 and $labels below must reach Grafana verbatim.
+    kustomize.toolkit.fluxcd.io/substitute: disabled
+data:
+  alerting.yaml: |
+    apiVersion: 1
+
+    contactPoints:
+      - orgId: 1
+        name: ntfy
+        receivers:
+          - uid: ntfy
+            type: webhook
+            settings:
+              url: $__env{NTFY_URL}?template=grafana
+              # The topic is public to whoever knows it: alert names and
+              # namespaces only, no labels (serials, IPs) or links.
+              title: '{{ or .CommonLabels.prom_alertname .CommonLabels.alertname }}'
+              message: |-
+                {{ range .Alerts }}{{ .Status }} {{ or .Labels.prom_alertname .Labels.alertname }}{{ with .Labels.namespace }} in {{ . }}{{ end }}
+                {{ end }}
+      - orgId: 1
+        name: healthchecks
+        receivers:
+          - uid: healthchecks
+            type: webhook
+            # A resolved Watchdog must not count as a ping.
+            disableResolveMessage: true
+            settings:
+              url: $__env{HEALTHCHECKS_URL}
+
+    policies:
+      - orgId: 1
+        receiver: ntfy
+        group_by: [prom_alertname]
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 12h
+        routes:
+          # Ping about every 4 minutes; the check's period + grace must be longer.
+          - receiver: healthchecks
+            object_matchers:
+              - [prom_alertname, =, Watchdog]
+            group_wait: 0s
+            group_interval: 1m
+            repeat_interval: 4m
+
+    groups:
+      - orgId: 1
+        name: prometheus
+        folder: Prometheus
+        interval: 1m
+        rules:
+          - uid: prometheus-alerts
+            title: Prometheus
+            condition: B
+            data:
+              - refId: A
+                datasourceUid: prometheus
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                model:
+                  refId: A
+                  instant: true
+                  expr: |
+                    label_replace(
+                      ALERTS{alertstate="firing", severity=~"warning|critical"}
+                        or ALERTS{alertstate="firing", alertname="Watchdog"},
+                      "prom_alertname", "$1", "alertname", "(.+)"
+                    )
+              - refId: B
+                datasourceUid: __expr__
+                model:
+                  refId: B
+                  type: threshold
+                  expression: A
+                  conditions:
+                    - evaluator:
+                        type: gt
+                        params: [0]
+            # No series at all means not even Watchdog: Prometheus does not
+            # evaluate rules. Both notify via ntfy as DatasourceNoData and
+            # DatasourceError.
+            noDataState: NoData
+            execErrState: Error
+            for: 0s
+            annotations:
+              summary: '{{ $labels.prom_alertname }}{{ with $labels.namespace }} in {{ . }}{{ end }}'

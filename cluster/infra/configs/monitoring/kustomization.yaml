@@ -4,3 +4,4 @@ resources:
   - scrape-smartctl.yaml
   - rules-disk-health.yaml
   - rules-host-drift.yaml
+  - grafana-alerting.yaml

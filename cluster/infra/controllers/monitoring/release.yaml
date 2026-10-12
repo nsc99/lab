@@ -35,6 +35,16 @@ spec:
     kubeProxy:
       enabled: false
 
+    # Grafana Alerting sends the notifications (cluster/infra/configs/monitoring/
+    # grafana-alerting.yaml); Prometheus only evaluates the rules.
+    alertmanager:
+      enabled: false
+    defaultRules:
+      rules:
+        alertmanager: false
+      disabled:
+        PrometheusNotConnectedToAlertmanagers: true
+
     prometheus:
       prometheusSpec:
         scrapeInterval: 1m
@@ -55,6 +65,21 @@ spec:
         existingSecret: grafana
         userKey: admin_username
         passwordKey: admin_password
+
+      # Links in notifications.
+      grafana.ini:
+        server:
+          root_url: https://grafana.schweigert.io
+
+      # Contact point URLs: NTFY_URL (https://ntfy.sh/<topic>, no query string)
+      # and HEALTHCHECKS_URL (https://hc-ping.com/<uuid>).
+      envFromSecret: grafana-alerting
+      sidecar:
+        alerts:
+          enabled: true
+        datasources:
+          alertmanager:
+            enabled: false
 
       ingress:
         enabled: true
