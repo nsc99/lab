@@ -36,13 +36,14 @@ local/cluster.sh sync          # apply working tree, wait until healthy (exit 1 
 local/cluster.sh diff          # read-only diff of the working tree against prod
 local/cluster.sh verify        # end-to-end checks against local/fixtures (qBittorrent/gluetun)
 local/cluster.sh kubectl ...   # inspect / poke the local cluster
+local/cluster.sh release       # done: free the shared VM for other worktrees (lease)
 ```
 
 ## Working on this repo (for Claude)
 
 - Never mutate the prod cluster. Against prod only read-only commands (`get`, `describe`, `logs`, `flux get`, `local/cluster.sh diff`). Mutating `kubectl`/`helm`/`flux` commands are denied in `.claude/settings.json`; go through `local/cluster.sh`, which only ever uses the local kubeconfig.
 - Work on a feature branch or worktree, never on `master`.
-- A cluster change is done when `check` passes, `sync master` then `sync` exits 0 (plus `verify` for gluetun/qBittorrent/arr changes), and `diff` shows only the intended changes. Report the diff in the PR.
+- A cluster change is done when `check` passes, `sync master` then `sync` exits 0 (plus `verify` for gluetun/qBittorrent/arr changes), `diff` shows only the intended changes, and the VM is handed back with `local/cluster.sh release`. Report the diff in the PR.
 - Local-only overrides live in `local/flux/patches/` and nowhere else; local stand-ins for external services (e.g. the WireGuard server gluetun uses locally) live in `local/fixtures/`. A new component that uses prod credentials against an external service (tailnet, VPN, ACME/DNS) needs an override there.
 - NixOS changes can only be evaluated locally. Deploying hosts (`rebuild.sh`) and pushing/merging are left to the user.
 - Build the one solution that works for what is deployed, verify it, and stop. No fallbacks, alternative code paths or backwards compatibility for versions, tools or states that are not in use (especially in test and local tooling): they are untested bloat. If something might fail, find out and fix it instead of guarding against it.

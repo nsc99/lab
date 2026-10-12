@@ -12,7 +12,10 @@ if [[ -z ${LAB_LOCAL_SHELL:-} ]]; then
 fi
 
 VM=lab-local
-STATE="$ROOT/local/.state"
+# Machine-wide like the VM: shared by every worktree of this repo.
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/lab-local
+LEASE="$STATE/lease"
+LEASE_TTL=${LOCAL_LEASE_TTL:-1800}
 REGISTRY=127.0.0.1:5050
 TIMEOUT=${LOCAL_TIMEOUT:-900}
 
@@ -22,6 +25,7 @@ PROD_KUBECONFIG=${LAB_PROD_KUBECONFIG:-$HOME/.kube/lab}
 # Where the lab-local context is registered for kubecm/kubectx.
 KUBECM_CONFIG=${KUBECM_CONFIG:-$HOME/.kube/config}
 export KUBECONFIG="$STATE/kubeconfig"
+mkdir -p "$STATE"
 
 log() { printf '\033[1m==> %s\033[0m\n' "$*" >&2; }
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
@@ -40,9 +44,116 @@ require_cluster() {
   [[ $(vm_status) == Running && -s $KUBECONFIG ]] || die "local cluster is not running, run: local/cluster.sh up"
 }
 
+# Exclusive lease on the VM, held by one worktree ($ROOT) at a time. $LEASE has
+# one line each: root, branch, pid of the running command (empty when idle),
+# epoch of last use. A lease counts as free once its holder is idle (pid not
+# alive) for $LEASE_TTL seconds or its worktree is gone.
+lease_locked="" lease_held=""
+
+# Guards read-modify-write of $LEASE; mkdir is atomic (macOS has no flock).
+lease_lock() {
+  local deadline=$((SECONDS + 10))
+  until mkdir "$LEASE.lock" 2>/dev/null; do
+    ((SECONDS < deadline)) || die "$LEASE.lock held for 10s; remove it if no local/cluster.sh is running"
+    sleep 0.1
+  done
+  lease_locked=1
+}
+
+lease_unlock() {
+  rmdir "$LEASE.lock"
+  lease_locked=""
+}
+
+lease_read() {
+  holder_root="" holder_branch="" holder_pid="" holder_used=0
+  [[ -f $LEASE ]] || return 0
+  { read -r holder_root; read -r holder_branch; read -r holder_pid; read -r holder_used; } <"$LEASE"
+}
+
+lease_write() {
+  printf '%s\n' "$ROOT" "$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)" "$1" "$(date +%s)" >"$LEASE.tmp"
+  mv "$LEASE.tmp" "$LEASE"
+}
+
+lease_busy() { [[ -n $holder_pid ]] && kill -0 "$holder_pid" 2>/dev/null; }
+
+lease_expired() {
+  [[ ! -d $holder_root ]] || { ! lease_busy && (($(date +%s) - holder_used > LEASE_TTL)); }
+}
+
+lease_describe() {
+  local state="idle $((($(date +%s) - holder_used) / 60))m"
+  lease_busy && state="running pid $holder_pid"
+  echo "$holder_root (branch $holder_branch, $state)"
+}
+
+# Takes the lease for $ROOT, waiting while another worktree holds it. $1 is
+# the pid to record ($$, cleared again on exit) or empty for exec'd commands.
+lease_acquire() {
+  local pid=$1 waiting_for=""
+  trap lease_exit EXIT
+  while :; do
+    lease_lock
+    lease_read
+    if [[ -z $holder_root || $holder_root == "$ROOT" ]] || lease_expired; then
+      # kubectl & co. next to a running sync of this worktree keep its pid.
+      [[ -n $pid || $holder_root != "$ROOT" ]] || ! lease_busy || pid=$holder_pid
+      lease_write "$pid"
+      lease_unlock
+      break
+    fi
+    lease_unlock
+    if [[ $holder_root != "$waiting_for" ]]; then
+      log "local cluster is leased by $(lease_describe), waiting"
+      log "free it with 'local/cluster.sh release' there, or it expires after ${LEASE_TTL}s idle"
+      waiting_for=$holder_root
+    fi
+    sleep 15
+  done
+  lease_held=$1
+  if [[ -n $holder_root && $holder_root != "$ROOT" ]]; then
+    log "took the lease from $holder_root: the cluster holds branch $holder_branch, 'local/cluster.sh sync master' resets it to prod"
+  fi
+}
+
+# EXIT trap: drops the mutex if the script died holding it and marks the lease
+# idle (keeps it for $ROOT) unless another command of $ROOT took it meanwhile.
+lease_exit() {
+  [[ -z $lease_locked ]] || lease_unlock
+  [[ -n $lease_held ]] || return 0
+  lease_lock
+  lease_read
+  [[ $holder_root != "$ROOT" || $holder_pid != "$$" ]] || lease_write ""
+  lease_unlock
+}
+
+cmd_lease() {
+  lease_read
+  if [[ -z $holder_root ]]; then
+    echo free
+  elif lease_expired; then
+    echo "free (expired: $(lease_describe))"
+  else
+    lease_describe
+  fi
+}
+
+cmd_release() {
+  trap lease_exit EXIT
+  lease_lock
+  lease_read
+  if [[ $holder_root == "$ROOT" ]]; then
+    rm "$LEASE"
+  elif [[ -n $holder_root ]] && ! lease_expired; then
+    die "local cluster is leased by $(lease_describe)"
+  fi
+  lease_unlock
+  log "local cluster lease is free"
+}
+
 cmd_up() {
   need limactl kubectl flux sops jq curl shasum nix
-  mkdir -p "$STATE"
 
   case $(vm_status) in
     Running) ;;
@@ -270,6 +381,7 @@ report() {
 
 cmd_status() {
   need flux kubectl jq
+  log "lease: $(cmd_lease)"
   require_cluster
   report "$(unhealthy)"
 }
@@ -304,7 +416,7 @@ verify_gluetun() {
   log "gluetun: kill switch (tunnel down until gluetun has restarted the VPN, ~3 min)"
   local since restarted=""
   since=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-  trap 'endpoint ip link set wg0 up >/dev/null 2>&1 || true' EXIT
+  trap 'endpoint ip link set wg0 up >/dev/null 2>&1 || true; lease_exit' EXIT
   endpoint ip link set wg0 down
   deadline=$((SECONDS + 300))
   while [[ -z $restarted ]] || ((SECONDS < restarted + 30)); do
@@ -318,7 +430,7 @@ verify_gluetun() {
     sleep 3
   done
   endpoint ip link set wg0 up
-  trap - EXIT
+  trap lease_exit EXIT
 
   log "gluetun: traffic resumes once the tunnel is back"
   deadline=$((SECONDS + 300))
@@ -420,18 +532,24 @@ usage: local/cluster.sh <command> [args]
   k9s           k9s against the local cluster
   shell         shell into the VM
   stop          stop the VM (state is kept)
-  destroy       delete the VM
+  destroy       delete the VM, release the lease
+  lease         show which worktree holds the local cluster
+  release       release the lease of this worktree (when done with the cluster)
+
+Every command that uses the VM (up, sync, verify, kubectl, flux, k9s, shell,
+stop, destroy) waits until no other worktree holds the lease, then takes it.
 EOF
 }
 
 cmd=${1:-help}
 shift || true
 case $cmd in
-  up | sync | status | check | diff | verify) "cmd_$cmd" "$@" ;;
-  kubectl | flux | k9s) require_cluster; exec "$cmd" "$@" ;;
-  shell) exec limactl shell "$VM" "$@" ;;
-  stop) limactl stop "$VM" ;;
-  destroy) limactl delete --force "$VM"; rm -f "$KUBECONFIG"; unregister_context ;;
+  up | sync | verify) lease_acquire "$$"; "cmd_$cmd" "$@" ;;
+  status | check | diff | lease | release) "cmd_$cmd" "$@" ;;
+  kubectl | flux | k9s) lease_acquire ""; require_cluster; exec "$cmd" "$@" ;;
+  shell) lease_acquire ""; exec limactl shell "$VM" "$@" ;;
+  stop) lease_acquire "$$"; limactl stop "$VM" ;;
+  destroy) lease_acquire "$$"; limactl delete --force "$VM"; rm -f "$KUBECONFIG"; unregister_context; cmd_release ;;
   help | -h | --help) usage ;;
   *) usage >&2; exit 1 ;;
 esac
