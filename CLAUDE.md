@@ -13,6 +13,7 @@ Homelab running on mostly second-hand hardware. Two halves live in this repo:
 
 - Do **not** add `Co-Authored-By` trailers (or any other AI attribution) to commits or PRs.
 - Conventional commits with a scope, e.g. `feat(nix): ...`, `fix(cluster): ...`, `chore(deps): ...`.
+- This repo is public. Commit messages, PR and issue text, comments and files never name specific media titles, release names, the release groups of downloaded media, or trackers/indexers in use. Use generic placeholders ("an English-original series", "an LQ group"). TRaSH custom format names are fine.
 
 ## Commands
 
