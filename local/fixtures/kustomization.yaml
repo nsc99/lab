@@ -10,7 +10,7 @@ images:
   - name: ntfy
     newName: binwiederhier/ntfy
     # renovate: datasource=docker depName=binwiederhier/ntfy
-    newTag: v2.29.0
+    newTag: v2.30.0
   - name: wireguard
     newName: lscr.io/linuxserver/wireguard
     # renovate: datasource=docker depName=lscr.io/linuxserver/wireguard versioning=regex:^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-r(?<build>\d+)-ls(?<revision>\d+)$
