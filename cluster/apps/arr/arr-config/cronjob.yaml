@@ -1,9 +1,9 @@
 ---
-# Configarr wires Prowlarr -> Sonarr and Sonarr's root folder (config.yml);
-# the host-config init container sets what Configarr cannot (UI login,
-# certificate validation) and creates the root folder on the share. Every 15
-# minutes, so it recovers from apps that were not ready yet; both steps only
-# write on change.
+# Configarr wires Prowlarr -> Sonarr, Prowlarr's FlareSolverr proxy and
+# Sonarr's root folder (config.yml); the host-config init container sets what
+# Configarr cannot (UI login, certificate validation) and creates the root
+# folder on the share. Every 15 minutes, so it recovers from apps that were not
+# ready yet; both steps only write on change.
 apiVersion: batch/v1
 kind: CronJob
 metadata:

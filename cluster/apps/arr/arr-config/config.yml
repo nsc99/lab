@@ -28,6 +28,16 @@ prowlarr:
   prowlarr:
     base_url: https://prowlarr.${EXTERNAL_DOMAIN}
     api_key: !env PROWLARR_API_KEY
+    # Prowlarr only routes indexers through the proxy that carry its tag.
+    indexer_proxies:
+      data:
+        - name: FlareSolverr
+          type: FlareSolverr
+          fields:
+            host: https://flaresolverr.${EXTERNAL_DOMAIN}/
+            requestTimeout: 60
+          tags:
+            - flaresolverr
     applications:
       data:
         - name: Sonarr
