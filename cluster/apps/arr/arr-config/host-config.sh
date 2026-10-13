@@ -4,7 +4,7 @@
 # login and certificate validation (stored in the app DB, no env var exists
 # for it).
 set -euo pipefail
-mkdir -p /media/library/shows /media/library/movies
+mkdir -p /media/library/{shows,anime,movies,anime-movies}
 c() { curl -fsS --max-time 20 --retry 12 --retry-delay 5 --retry-all-errors ${CURL_INSECURE:+-k} "$@"; }
 for app in sonarr/v3/"$SONARR_API_KEY" radarr/v3/"$RADARR_API_KEY" prowlarr/v1/"$PROWLARR_API_KEY"; do
   IFS=/ read -r name ver key <<<"$app"
