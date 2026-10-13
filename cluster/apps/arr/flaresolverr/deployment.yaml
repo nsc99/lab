@@ -1,0 +1,54 @@
+---
+# Headless Chromium that solves Cloudflare challenges for Prowlarr indexers
+# (indexer proxy in arr-config/config.yml). Stateless; no auth, so it is
+# reachable from the LAN/tailnet only.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaresolverr
+  namespace: arr
+  labels:
+    app.kubernetes.io/name: flaresolverr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: flaresolverr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: flaresolverr
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: flaresolverr
+          image: ghcr.io/flaresolverr/flaresolverr:v3.5.2
+          imagePullPolicy: IfNotPresent
+          # No CPU limit: Chromium solves in bursts and throttling makes them time out.
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          env:
+            - name: TZ
+              value: Europe/Berlin
+            - name: LOG_LEVEL
+              value: info
+          ports:
+            - name: http
+              containerPort: 8191
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5

@@ -6,6 +6,7 @@ resources:
   - secret.yaml
   - ./sonarr
   - ./prowlarr
+  - ./flaresolverr
   - ./bazarr
   - ./arr-config
 configMapGenerator:
