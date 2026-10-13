@@ -13,6 +13,8 @@ Homelab running on mostly second-hand hardware. Two halves live in this repo:
 
 - Do **not** add `Co-Authored-By` trailers (or any other AI attribution) to commits or PRs.
 - Conventional commits with a scope, e.g. `feat(nix): ...`, `fix(cluster): ...`, `chore(deps): ...`.
+- PRs are short: what changes, why, and post-merge steps or risks. No test reports unless they matter for operation.
+- Public repo: never name media titles, releases, grabbed release groups or trackers anywhere (use placeholders).
 
 ## Commands
 
@@ -43,7 +45,7 @@ local/cluster.sh release       # done: free the shared VM for other worktrees (l
 
 - Never mutate the prod cluster. Against prod only read-only commands (`get`, `describe`, `logs`, `flux get`, `local/cluster.sh diff`). Mutating `kubectl`/`helm`/`flux` commands are denied in `.claude/settings.json`; go through `local/cluster.sh`, which only ever uses the local kubeconfig.
 - Work on a feature branch or worktree, never on `master`.
-- A cluster change is done when `check` passes, `sync master` then `sync` exits 0 (plus `verify` for gluetun/qBittorrent/arr and alerting changes), `diff` shows only the intended changes, and the VM is handed back with `local/cluster.sh release`. Report the diff in the PR.
+- A cluster change is done when `check` passes, `sync master` then `sync` exits 0 (plus `verify` for gluetun/qBittorrent/arr and alerting changes), `diff` shows only the intended changes, and the VM is handed back with `local/cluster.sh release`.
 - Local-only overrides live in `local/flux/patches/` and nowhere else; local stand-ins for external services (e.g. the WireGuard server gluetun uses locally) live in `local/fixtures/`. A new component that uses prod credentials against an external service (tailnet, VPN, ACME/DNS) needs an override there.
 - NixOS changes can only be evaluated locally. Deploying hosts (`rebuild.sh`) and pushing/merging are left to the user.
 - Build the one solution that works for what is deployed, verify it, and stop. No fallbacks, alternative code paths or backwards compatibility for versions, tools or states that are not in use (especially in test and local tooling): they are untested bloat. If something might fail, find out and fix it instead of guarding against it.
