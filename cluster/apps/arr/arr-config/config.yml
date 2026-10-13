@@ -11,6 +11,8 @@ sonarr:
     # Declarative: root folders not listed here are removed.
     root_folders:
       - /media/library/shows
+      # Anime series requested through Seerr (its Sonarr "Anime Root Folder").
+      - /media/library/anime
     download_clients:
       data:
         - name: qBittorrent
@@ -31,6 +33,8 @@ radarr:
     # Declarative: root folders not listed here are removed.
     root_folders:
       - /media/library/movies
+      # Anime movies (Seerr override rule on the TMDB keyword "anime").
+      - /media/library/anime-movies
     download_clients:
       data:
         - name: qBittorrent
