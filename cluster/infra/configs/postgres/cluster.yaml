@@ -89,3 +89,8 @@ spec:
         login: true
         passwordSecret:
           name: postgres-seerr
+      - name: paperless
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-paperless

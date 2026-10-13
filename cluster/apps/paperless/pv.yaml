@@ -1,0 +1,35 @@
+---
+# /tank/documents on the NFS host (own ZFS dataset, nix/modules/nfs-server.nix):
+# media (originals, archive, thumbnails), data (index, classifier), consume
+# (scanner inbox), export (document_exporter) and tessdata (jpn OCR models).
+# The export squashes every write to 4000:4000, the uid paperless runs as.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paperless-documents
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes: [ReadWriteMany]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions: [nfsvers=4.2, hard, noatime]
+  nfs:
+    server: ${NFS_HOST}
+    path: /tank/documents
+  claimRef:
+    namespace: paperless
+    name: paperless-documents
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-documents
+  namespace: paperless
+spec:
+  storageClassName: ""
+  volumeName: paperless-documents
+  accessModes: [ReadWriteMany]
+  resources:
+    requests:
+      storage: 100Gi

@@ -164,6 +164,16 @@
       ],
       "dependencyDashboardApproval": true,
       "automerge": false
+    },
+    {
+      "description": "Tika 4 removed the endpoints paperless-ngx uses (paperless-ngx#13755)",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "apache/tika"
+      ],
+      "allowedVersions": "<4"
     }
   ]
 }

@@ -1,0 +1,15 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - secret.yaml
+  - pv.yaml
+  - configmap.yaml
+  - networkpolicy.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - valkey.yaml
+  - tika.yaml
+  - gotenberg.yaml

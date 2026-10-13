@@ -102,3 +102,16 @@ spec:
   owner: seerr
   ensure: present
   databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: paperless
+  namespace: postgres
+spec:
+  cluster:
+    name: postgres
+  name: paperless
+  owner: paperless
+  ensure: present
+  databaseReclaimPolicy: retain

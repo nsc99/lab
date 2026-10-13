@@ -80,7 +80,7 @@ local/cluster.sh release   # done with the cluster: let the next worktree in
 | Source | GitRepository `master` | OCIRepository from an in-cluster registry, pushed by `sync` |
 | Stages | `nix/config/manifests/flux-sync.yaml` | same file, patched by `local/flux/` |
 | `cluster-settings` | generated in `flux.nix` | same, but `NFS_HOST` = VM, `EXTERNAL_DOMAIN` = `lab.test` |
-| NFS | `nix-optiplex1:/tank` | NFS server in the VM, same exports and NFS versions |
+| NFS | `nix-optiplex1:/tank` | NFS server in the VM, same exports (`media`, `k8s`, `documents` with the jpn tessdata files) and NFS versions |
 | Secrets | `sops-age` from `nix/secrets/sops-age.enc` | same secret |
 
 ## What is different on purpose

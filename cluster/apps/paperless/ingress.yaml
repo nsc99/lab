@@ -1,0 +1,26 @@
+---
+# LAN/tailnet only: no `public` entrypoint.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: paperless
+  namespace: paperless
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: paperless-tls
+      hosts:
+        - paperless.${EXTERNAL_DOMAIN}
+  rules:
+    - host: paperless.${EXTERNAL_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: paperless
+                port:
+                  number: 8000

@@ -39,9 +39,24 @@ provision:
       useradd -r -u 2000 -g media media
       install -d -m 0775 -o media -g media /tank/media
       install -d -m 0755 /tank/k8s
+      groupadd -g 4000 documents
+      useradd -r -u 4000 -g documents documents
+      for d in "" media data consume export tessdata; do
+        install -d -m 0770 -o documents -g documents "/tank/documents/$d"
+      done
+      # Same files as nixpkgs tesseract5.languages.{jpn,jpn_vert} on prod.
+      for f in jpn:6f416b902d129d8cc28e99c33244034b1cf52549e8560f6320b06d317852159a \
+               jpn_vert:36879c1aa07634302c9dcb2c1ed4f8fb347c705ad7522dd693ee2e9d68028a79; do
+        t="/tank/documents/tessdata/${f%%:*}.traineddata"
+        curl -fsSL -o "$t" "https://github.com/tesseract-ocr/tessdata/raw/4.1.0/${f%%:*}.traineddata"
+        echo "${f#*:}  $t" | sha256sum -c -
+        chown documents:documents "$t"
+        chmod 0440 "$t"
+      done
       cat >/etc/exports <<'EOF'
-      /tank/media *(rw,async,no_subtree_check,all_squash,anonuid=2000,anongid=2000)
-      /tank/k8s   *(rw,sync,no_subtree_check,no_root_squash)
+      /tank/media     *(rw,async,no_subtree_check,all_squash,anonuid=2000,anongid=2000)
+      /tank/k8s       *(rw,sync,no_subtree_check,no_root_squash)
+      /tank/documents *(rw,sync,no_subtree_check,all_squash,anonuid=4000,anongid=4000)
       EOF
       cat >/etc/nfs.conf.d/lab.conf <<'EOF'
       [nfsd]
