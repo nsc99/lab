@@ -9,7 +9,34 @@ permissions:
   contents: read
 
 jobs:
+  # Gate each check on the paths it validates. Skipped jobs count as passed
+  # for the required checks on master; a workflow-level `paths` filter would
+  # leave them pending instead.
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      nix: ${{ steps.filter.outputs.nix }}
+      manifests: ${{ steps.filter.outputs.manifests }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dorny/paths-filter@v4.0.3
+        id: filter
+        with:
+          filters: |
+            nix:
+              - 'nix/**'
+              - '.github/workflows/ci.yaml'
+            manifests:
+              - 'cluster/**'
+              - 'nix/flake.lock'
+              - '.github/workflows/ci.yaml'
+
   nix:
+    needs: changes
+    if: needs.changes.outputs.nix == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
@@ -19,6 +46,8 @@ jobs:
         run: nix flake check -L
 
   manifests:
+    needs: changes
+    if: needs.changes.outputs.manifests == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1

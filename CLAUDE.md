@@ -85,7 +85,7 @@ Conventions:
 
 ## CI
 
-`.github/workflows/ci.yaml` runs on GitHub-hosted runners on pushes to `master` and on PRs. Jobs: `nix flake check`, and `kustomize build | kubeconform` for each Flux stage, using tools pinned by `nix/flake.lock`.
+`.github/workflows/ci.yaml` runs on GitHub-hosted runners on pushes to `master` and on PRs. Jobs: `nix flake check` (runs when `nix/**` changes), and `kustomize build | kubeconform` for each Flux stage (runs when `cluster/**` or `nix/flake.lock` changes), using tools pinned by `nix/flake.lock`. A `changes` job (dorny/paths-filter) gates both; changes to `ci.yaml` run both. Gate jobs with `if:` on its outputs, not a workflow-level `paths` filter: `nix` and `manifests` are required checks on `master`, and skipped jobs count as passed while unrun workflows stay pending.
 
 ## Dependency updates
 
