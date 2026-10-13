@@ -1,6 +1,6 @@
 ---
-# Media requests for the Jellyfin users: they sign in with their Jellyfin
-# account and requests go to Sonarr/Radarr. Public like Jellyfin. Jellyfin,
+# Media requests: sign-in with a Jellyfin account, requests go to
+# Sonarr/Radarr. Exposed like Jellyfin. Jellyfin,
 # Sonarr, Radarr and the request defaults are set up in the UI (settings.json
 # on the config PVC); the database is the shared CNPG cluster.
 apiVersion: helm.toolkit.fluxcd.io/v2
