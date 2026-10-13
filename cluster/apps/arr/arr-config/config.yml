@@ -13,6 +13,12 @@ sonarr:
       - /media/library/shows
       # Anime series requested through Seerr (its Sonarr "Anime Root Folder").
       - /media/library/anime
+    # Anime profile (Seerr's Sonarr "Anime Quality Profile"): 1080p max, ranks
+    # release groups, rejects LQ groups, raws and AV1. Quality sizes are global,
+    # so TRaSH's anime quality_definition is left out.
+    include:
+      - template: 20e0fc959f1f1704bed501f23bdae76f # [Anime] Remux-1080p
+        source: TRASH
     download_clients:
       data:
         - name: qBittorrent
@@ -35,6 +41,10 @@ radarr:
       - /media/library/movies
       # Anime movies (Seerr override rule on the TMDB keyword "anime").
       - /media/library/anime-movies
+    # Anime profile (quality profile of Seerr's "anime" override rule).
+    include:
+      - template: 722b624f9af1e492284c4bc842153a38 # [Anime] Remux-1080p
+        source: TRASH
     download_clients:
       data:
         - name: qBittorrent
