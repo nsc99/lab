@@ -84,3 +84,8 @@ spec:
         login: true
         passwordSecret:
           name: postgres-radarr
+      - name: seerr
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-seerr

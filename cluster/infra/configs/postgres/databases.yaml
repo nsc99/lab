@@ -89,3 +89,16 @@ spec:
   owner: radarr
   ensure: present
   databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: seerr
+  namespace: postgres
+spec:
+  cluster:
+    name: postgres
+  name: seerr
+  owner: seerr
+  ensure: present
+  databaseReclaimPolicy: retain
