@@ -16,12 +16,23 @@ sonarr:
     # Anime profile (Seerr's Sonarr "Anime Quality Profile"): 1080p max, ranks
     # release groups, rejects LQ groups, dubs-only and AV1. Quality sizes are
     # global, so TRaSH's anime quality_definition is left out.
+    #
+    # Profiles for everything else, both keep the original audio (see the
+    # overrides below):
+    # - WEB-1080p (default, Seerr's Sonarr "Quality Profile"): original audio
+    #   only, German releases rejected.
+    # - [German] HD Bluray + WEB (per request): German + original audio
+    #   (German DL) preferred, original-only accepted.
     include:
       - template: 20e0fc959f1f1704bed501f23bdae76f # [Anime] Remux-1080p
         source: TRASH
-    # Overrides of the TRaSH profile (merged by name). Min score 0 instead of
-    # 100: groups TRaSH doesn't tier (e.g. Erai-raws without a WEB source tag)
-    # are accepted; the -10000 formats stay rejected.
+      - template: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p
+        source: TRASH
+      - template: dca7e5e9e99c703bcbdaaa471dd40e98 # [German] HD Bluray + WEB
+        source: TRASH
+    # Overrides of the TRaSH profiles (merged by name). Anime: min score 0
+    # instead of 100, so groups TRaSH doesn't tier (e.g. Erai-raws without a
+    # WEB source tag) are accepted; the -10000 formats stay rejected.
     quality_profiles:
       - name: "[Anime] Remux-1080p"
         min_format_score: 0
@@ -30,6 +41,29 @@ sonarr:
           - b4a1b3d705159cdca36d71e57ca86871 # Anime Raws (unsubtitled is fine)
         assign_scores_to:
           - name: "[Anime] Remux-1080p"
+            score: 0
+      # Every release must carry the original language (Sonarr assumes the
+      # series' original language when a release has no language tag). TRaSH's
+      # German profile would otherwise upgrade English-only to a German-only
+      # dub, replacing the original audio; a German dub only counts as German DL.
+      - trash_ids:
+          - ae575f95ab639ba5d15f663bf019e3e8 # Language: Not Original
+        assign_scores_to:
+          - name: WEB-1080p
+            score: -10000
+          - name: "[German] HD Bluray + WEB"
+            score: -10000
+      - trash_ids:
+          - ed51973a811f51985f14e2f6f290e47a # German DL
+          - c5dd0fd675f85487ad5bdf97159180bd # German DL (undefined)
+        assign_scores_to:
+          - name: WEB-1080p
+            score: -10000
+      - trash_ids:
+          - 8a9fcdbb445f2add0505926df3bb7b8a # German (dub without original audio)
+          - 133589380b89f8f8394320901529bac1 # Not German or English (non-English originals)
+        assign_scores_to:
+          - name: "[German] HD Bluray + WEB"
             score: 0
     download_clients:
       data:
@@ -54,8 +88,14 @@ radarr:
       # Anime movies (Seerr override rule on the TMDB keyword "anime").
       - /media/library/anime-movies
     # Anime profile (quality profile of Seerr's "anime" override rule).
+    # Profiles for everything else, as in Sonarr: HD Bluray + WEB (default;
+    # TRaSH sets its language to Original) and [German] HD Bluray + WEB.
     include:
       - template: 722b624f9af1e492284c4bc842153a38 # [Anime] Remux-1080p
+        source: TRASH
+      - template: d1d67249d3890e49bc12e275d989a7e9 # HD Bluray + WEB
+        source: TRASH
+      - template: 2b90e905c99490edc7c7a5787443748b # [German] HD Bluray + WEB
         source: TRASH
     # Same overrides as in Sonarr.
     quality_profiles:
@@ -66,6 +106,23 @@ radarr:
           - 06b6542a47037d1e33b15aa3677c2365 # Anime Raws (unsubtitled is fine)
         assign_scores_to:
           - name: "[Anime] Remux-1080p"
+            score: 0
+      - trash_ids:
+          - d6e9318c875905d6cfb5bee961afcea9 # Language: Not Original
+        assign_scores_to:
+          - name: "[German] HD Bluray + WEB"
+            score: -10000
+      - trash_ids:
+          - f845be10da4f442654c13e1f2c3d6cd5 # German DL
+          - 6aad77771dabe9d3e9d7be86f310b867 # German DL (undefined)
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: -10000
+      - trash_ids:
+          - 86bc3115eb4e9873ac96904a4a68e19e # German (dub without original audio)
+          - 4eadb75fb23d09dfc0a8e3f687e72287 # Not German or English (non-English originals)
+        assign_scores_to:
+          - name: "[German] HD Bluray + WEB"
             score: 0
     download_clients:
       data:
