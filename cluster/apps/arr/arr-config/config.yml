@@ -31,7 +31,7 @@ sonarr:
       - template: dca7e5e9e99c703bcbdaaa471dd40e98 # [German] HD Bluray + WEB
         source: TRASH
     # Overrides of the TRaSH profiles (merged by name). Anime: min score 0
-    # instead of 100, so groups TRaSH doesn't tier (e.g. Erai-raws without a
+    # instead of 100, so groups TRaSH doesn't tier (or tiered ones without a
     # WEB source tag) are accepted; the -10000 formats stay rejected.
     quality_profiles:
       - name: "[Anime] Remux-1080p"
