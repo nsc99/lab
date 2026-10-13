@@ -28,10 +28,11 @@ spec:
     replicaCount: 1
     image:
       # The chart defaults to its appVersion (10.11.8 in 3.2.0), which Renovate
-      # cannot see. 10.11.11 is the last 10.11 release; 12.x needs a manual
-      # migration (#41) and Renovate does not offer it from a three-part tag.
+      # cannot see. 12.x publishes `12.2` and `12.2.<date>-<time>` tags (no
+      # `12.2.0`); Renovate only offers tags shaped like the current one, so the
+      # two-part tag is what lets it follow 12.3, 12.4, ...
       # renovate: datasource=docker depName=docker.io/jellyfin/jellyfin
-      tag: "10.11.11"
+      tag: "12.2"
       pullPolicy: IfNotPresent
     ingress:
       enabled: true
