@@ -14,11 +14,23 @@ sonarr:
       # Anime series requested through Seerr (its Sonarr "Anime Root Folder").
       - /media/library/anime
     # Anime profile (Seerr's Sonarr "Anime Quality Profile"): 1080p max, ranks
-    # release groups, rejects LQ groups, raws and AV1. Quality sizes are global,
-    # so TRaSH's anime quality_definition is left out.
+    # release groups, rejects LQ groups, dubs-only and AV1. Quality sizes are
+    # global, so TRaSH's anime quality_definition is left out.
     include:
       - template: 20e0fc959f1f1704bed501f23bdae76f # [Anime] Remux-1080p
         source: TRASH
+    # Overrides of the TRaSH profile (merged by name). Min score 0 instead of
+    # 100: groups TRaSH doesn't tier (e.g. Erai-raws without a WEB source tag)
+    # are accepted; the -10000 formats stay rejected.
+    quality_profiles:
+      - name: "[Anime] Remux-1080p"
+        min_format_score: 0
+    custom_formats:
+      - trash_ids:
+          - b4a1b3d705159cdca36d71e57ca86871 # Anime Raws (unsubtitled is fine)
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
+            score: 0
     download_clients:
       data:
         - name: qBittorrent
@@ -45,6 +57,16 @@ radarr:
     include:
       - template: 722b624f9af1e492284c4bc842153a38 # [Anime] Remux-1080p
         source: TRASH
+    # Same overrides as in Sonarr.
+    quality_profiles:
+      - name: "[Anime] Remux-1080p"
+        min_format_score: 0
+    custom_formats:
+      - trash_ids:
+          - 06b6542a47037d1e33b15aa3677c2365 # Anime Raws (unsubtitled is fine)
+        assign_scores_to:
+          - name: "[Anime] Remux-1080p"
+            score: 0
     download_clients:
       data:
         - name: qBittorrent
