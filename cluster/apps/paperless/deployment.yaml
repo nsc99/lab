@@ -114,22 +114,12 @@ spec:
               value: http://tika:9998
             - name: PAPERLESS_TIKA_GOTENBERG_ENDPOINT
               value: http://gotenberg:3000
-            # jpn comes from /tank/documents/tessdata (mounted below);
-            # PAPERLESS_OCR_LANGUAGES would apt-get install as root on every start.
-            # jpn first: with deu first Tesseract dropped whole kana lines of a
-            # mixed page (measured on lima); German pages read the same either way.
+            # Both models ship with the image. PAPERLESS_OCR_LANGUAGES (plural)
+            # would apt-get install more as root on every start.
             - name: PAPERLESS_OCR_LANGUAGE
-              value: jpn+deu+eng
-            # Otherwise inferred from the first OCR language (jpn: no stemmer).
-            - name: PAPERLESS_SEARCH_LANGUAGE
-              value: de
+              value: deu+eng
             - name: PAPERLESS_DATE_PARSER_LANGUAGES
-              value: de+en+ja
-            # Without it Tesseract puts a space between Japanese characters, and
-            # the search index only takes CJK runs of 2+ characters: nothing
-            # Japanese would be searchable.
-            - name: PAPERLESS_OCR_USER_ARGS
-              value: '{"tesseract_config": ["/etc/paperless-tesseract/cjk.cfg"]}'
+              value: de+en
             # inotify does not see writes from other NFS clients.
             - name: PAPERLESS_CONSUMER_POLLING_INTERVAL
               value: "10"
@@ -183,25 +173,11 @@ spec:
             - name: documents
               mountPath: /usr/src/paperless/export
               subPath: export
-            - name: documents
-              mountPath: /usr/share/tesseract-ocr/5/tessdata/jpn.traineddata
-              subPath: tessdata/jpn.traineddata
-              readOnly: true
-            - name: documents
-              mountPath: /usr/share/tesseract-ocr/5/tessdata/jpn_vert.traineddata
-              subPath: tessdata/jpn_vert.traineddata
-              readOnly: true
-            - name: tesseract-config
-              mountPath: /etc/paperless-tesseract
-              readOnly: true
             - name: run
               mountPath: /run
             - name: tmp
               mountPath: /tmp
       volumes:
-        - name: tesseract-config
-          configMap:
-            name: paperless-tesseract
         - name: documents
           persistentVolumeClaim:
             claimName: paperless-documents

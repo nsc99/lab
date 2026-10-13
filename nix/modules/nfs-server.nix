@@ -1,9 +1,4 @@
-{
-  cluster,
-  lib,
-  pkgs,
-  ...
-}:
+{ cluster, lib, ... }:
 let
   lan = "192.168.178.0/24";
   nodes = lib.attrValues cluster.hosts;
@@ -48,13 +43,6 @@ in
     "d /tank/documents/data        0770 documents documents -"
     "d /tank/documents/consume     0770 documents documents -"
     "d /tank/documents/export      0770 documents documents -"
-    "d /tank/documents/tessdata    0770 documents documents -"
-    # Japanese OCR models (tessdata 4.1.0) that the paperless image lacks, mounted
-    # as single files into its tessdata dir. Copies: a /nix/store symlink does not
-    # resolve over NFS. `C` copies only if the target is missing: after a tessdata
-    # bump in nixpkgs, delete the files to get the new ones.
-    "C /tank/documents/tessdata/jpn.traineddata      0440 documents documents - ${pkgs.tesseract5.languages.jpn}"
-    "C /tank/documents/tessdata/jpn_vert.traineddata 0440 documents documents - ${pkgs.tesseract5.languages.jpn_vert}"
   ];
 
   services.nfs = {

@@ -1,7 +1,7 @@
 ---
 # /tank/documents on the NFS host (own ZFS dataset, nix/modules/nfs-server.nix):
 # media (originals, archive, thumbnails), data (index, classifier), consume
-# (scanner inbox), export (document_exporter) and tessdata (jpn OCR models).
+# (scanner inbox) and export (document_exporter).
 # The export squashes every write to 4000:4000, the uid paperless runs as.
 apiVersion: v1
 kind: PersistentVolume
