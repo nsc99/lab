@@ -64,3 +64,41 @@ spec:
           release: observability
     nodeSelector:
       kubernetes.io/hostname: nix-optiplex2
+    # Jellyfin is the only public app; keep a compromised pod away from the
+    # cluster and the LAN (/tank/k8s is exported no_root_squash to the nodes).
+    # 2000 is the owner of /tank/media. The config PV is a `local` volume, so
+    # fsGroup makes the root-owned files group-writable on first start.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 2000
+      runAsGroup: 2000
+      fsGroup: 2000
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: [ALL]
+    serviceAccount:
+      automount: false
+    # Egress only to DNS and the internet (metadata, artwork, subtitles); no
+    # pod/service network, LAN, tailnet (CGNAT) or link-local addresses.
+    networkPolicy:
+      enabled: true
+      policyTypes: [Egress]
+      egress:
+        allowAllEgress: false
+        restrictedEgress:
+          allowMetadata: false
+          allowInCluster: false
+        customRules:
+          - to:
+              - ipBlock:
+                  cidr: 0.0.0.0/0
+                  except:
+                    - 10.0.0.0/8
+                    - 172.16.0.0/12
+                    - 192.168.0.0/16
+                    - 100.64.0.0/10
+                    - 169.254.0.0/16
