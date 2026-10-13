@@ -458,7 +458,8 @@ wait_ntfy() {
 
 # qBittorrent behind gluetun: traffic leaves through the tunnel, nothing gets
 # out while the tunnel is down (kill switch) and it recovers, the WebUI takes
-# Sonarr's login on its ingress, and Sonarr's download client test passes.
+# Sonarr's login on its ingress, and Sonarr's and Radarr's download client
+# tests pass.
 verify_gluetun() {
   local domain size=2000000 before after deadline
   domain=$(kubectl -n flux-system get configmap cluster-settings -o jsonpath='{.data.EXTERNAL_DOMAIN}')
@@ -513,9 +514,9 @@ verify_gluetun() {
   # 204 on success, 401 on bad credentials.
   [[ $out == " 204" ]] || die "qbittorrent rejected Sonarr's login: $out"
 
-  # Configarr (re)creates Sonarr's download client; run it now instead of
-  # waiting for the schedule.
-  log "sonarr: arr-config job with the download client enabled"
+  # Configarr (re)creates the download clients; run it now instead of waiting
+  # for the schedule.
+  log "arr: arr-config job with the download client enabled"
   local job
   job=arr-config-verify-$(date +%s)
   kubectl -n arr create job --from=cronjob/arr-config "$job" >/dev/null
@@ -531,12 +532,15 @@ verify_gluetun() {
   done
   kubectl -n arr delete job "$job" --wait=false >/dev/null
 
-  log "sonarr: download client test"
-  # shellcheck disable=SC2016
-  out=$(kubectl -n arr get secret arr -o jsonpath='{.data.sonarr_api_key}' | base64 -d |
-    endpoint_stdin sh -c 'read -r k; curl -fsSk -X POST -H "X-Api-Key: $k" "https://sonarr.$1/api/v3/downloadclient/testall"' - "$domain") ||
-    die "sonarr download client test request failed"
-  jq -e 'length > 0 and all(.isValid)' <<<"$out" >/dev/null || die "sonarr download client test failed: $out"
+  local app
+  for app in sonarr radarr; do
+    log "$app: download client test"
+    # shellcheck disable=SC2016
+    out=$(kubectl -n arr get secret arr -o jsonpath="{.data.${app}_api_key}" | base64 -d |
+      endpoint_stdin sh -c 'read -r k; curl -fsSk -X POST -H "X-Api-Key: $k" "https://$2.$1/api/v3/downloadclient/testall"' - "$domain" "$app") ||
+      die "$app download client test request failed"
+    jq -e 'length > 0 and all(.isValid)' <<<"$out" >/dev/null || die "$app download client test failed: $out"
+  done
 }
 
 endpoint() { kubectl -n local-fixtures exec deployment/vpn-endpoint -c wireguard -- "$@"; }

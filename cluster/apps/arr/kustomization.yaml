@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - secret.yaml
   - ./sonarr
+  - ./radarr
   - ./prowlarr
   - ./flaresolverr
   - ./bazarr

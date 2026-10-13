@@ -1,11 +1,12 @@
 #!/bin/bash
 # Runs before Configarr, which does not manage host config: creates the
-# Sonarr root folder on the media share and sets each app's forms login and
-# certificate validation (stored in the app DB, no env var exists for it).
+# Sonarr/Radarr root folders on the media share and sets each app's forms
+# login and certificate validation (stored in the app DB, no env var exists
+# for it).
 set -euo pipefail
-mkdir -p /media/library/shows
+mkdir -p /media/library/shows /media/library/movies
 c() { curl -fsS --max-time 20 --retry 12 --retry-delay 5 --retry-all-errors ${CURL_INSECURE:+-k} "$@"; }
-for app in sonarr/v3/"$SONARR_API_KEY" prowlarr/v1/"$PROWLARR_API_KEY"; do
+for app in sonarr/v3/"$SONARR_API_KEY" radarr/v3/"$RADARR_API_KEY" prowlarr/v1/"$PROWLARR_API_KEY"; do
   IFS=/ read -r name ver key <<<"$app"
   url="https://$name.$EXTERNAL_DOMAIN" api="/api/$ver/config/host"
   cfg=$(c -H "X-Api-Key: $key" "$url$api")

@@ -34,7 +34,7 @@ data:
     umask 077
     stamp=$(date -u +%Y%m%dT%H%M%SZ)
     # <db>:<owner>; the owner's password comes from PGPASSWORD_<OWNER>.
-    for entry in sonarr-main:sonarr sonarr-log:sonarr prowlarr-main:prowlarr prowlarr-log:prowlarr bazarr:bazarr; do
+    for entry in sonarr-main:sonarr sonarr-log:sonarr prowlarr-main:prowlarr prowlarr-log:prowlarr bazarr:bazarr radarr-main:radarr radarr-log:radarr; do
       db=${entry%%:*}
       owner=${entry#*:}
       pw_var="PGPASSWORD_${owner^^}"
@@ -94,6 +94,11 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: postgres-bazarr
+                      key: password
+                - name: PGPASSWORD_RADARR
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-radarr
                       key: password
               securityContext:
                 allowPrivilegeEscalation: false

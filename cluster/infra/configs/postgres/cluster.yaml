@@ -79,3 +79,8 @@ spec:
         login: true
         passwordSecret:
           name: postgres-bazarr
+      - name: radarr
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-radarr

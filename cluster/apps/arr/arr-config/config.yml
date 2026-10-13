@@ -24,6 +24,26 @@ sonarr:
             password: !env QBITTORRENT_PASSWORD
             tv_category: tv-sonarr
 
+radarr:
+  radarr:
+    base_url: https://radarr.${EXTERNAL_DOMAIN}
+    api_key: !env RADARR_API_KEY
+    # Declarative: root folders not listed here are removed.
+    root_folders:
+      - /media/library/movies
+    download_clients:
+      data:
+        - name: qBittorrent
+          type: qbittorrent
+          enable: true
+          fields:
+            host: q.${EXTERNAL_DOMAIN}
+            port: 443
+            use_ssl: true
+            username: !env QBITTORRENT_USERNAME
+            password: !env QBITTORRENT_PASSWORD
+            movie_category: radarr
+
 prowlarr:
   prowlarr:
     base_url: https://prowlarr.${EXTERNAL_DOMAIN}
@@ -49,3 +69,11 @@ prowlarr:
             apiKey: !env SONARR_API_KEY
             syncCategories: [5000, 5010, 5020, 5030, 5040, 5045, 5050, 5090]
             animeSyncCategories: [5070]
+        - name: Radarr
+          type: Radarr
+          sync_level: fullSync
+          fields:
+            prowlarrUrl: https://prowlarr.${EXTERNAL_DOMAIN}
+            baseUrl: https://radarr.${EXTERNAL_DOMAIN}
+            apiKey: !env RADARR_API_KEY
+            syncCategories: [2000, 2010, 2020, 2030, 2040, 2045, 2050, 2060, 2070, 2080, 2090]

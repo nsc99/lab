@@ -63,3 +63,29 @@ spec:
   owner: bazarr
   ensure: present
   databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: radarr-main
+  namespace: postgres
+spec:
+  cluster:
+    name: postgres
+  name: radarr-main
+  owner: radarr
+  ensure: present
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: radarr-log
+  namespace: postgres
+spec:
+  cluster:
+    name: postgres
+  name: radarr-log
+  owner: radarr
+  ensure: present
+  databaseReclaimPolicy: retain
