@@ -1,9 +1,9 @@
 ---
-# Configarr wires Prowlarr -> Sonarr, Prowlarr's FlareSolverr proxy and
-# Sonarr's root folder (config.yml); the host-config init container sets what
-# Configarr cannot (UI login, certificate validation) and creates the root
-# folder on the share. Every 15 minutes, so it recovers from apps that were not
-# ready yet; both steps only write on change.
+# Configarr wires Prowlarr -> Sonarr/Radarr, Prowlarr's FlareSolverr proxy
+# and the Sonarr/Radarr root folders (config.yml); the host-config init
+# container sets what Configarr cannot (UI login, certificate validation) and
+# creates the root folders on the share. Every 15 minutes, so it recovers from
+# apps that were not ready yet; both steps only write on change.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -58,6 +58,11 @@ spec:
                     secretKeyRef:
                       name: arr
                       key: prowlarr_api_key
+                - name: RADARR_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: arr
+                      key: radarr_api_key
                 - name: UI_USERNAME
                   valueFrom:
                     secretKeyRef:
@@ -101,6 +106,11 @@ spec:
                     secretKeyRef:
                       name: arr
                       key: prowlarr_api_key
+                - name: RADARR_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: arr
+                      key: radarr_api_key
                 - name: QBITTORRENT_USERNAME
                   valueFrom:
                     secretKeyRef:

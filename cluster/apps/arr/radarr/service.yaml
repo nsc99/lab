@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "radarr"
+  namespace: "arr"
+  labels:
+    app.kubernetes.io/name: radarr
+spec:
+  type: "ClusterIP"
+  selector:
+    app.kubernetes.io/name: radarr
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: "TCP"
+      name: "radarr"
