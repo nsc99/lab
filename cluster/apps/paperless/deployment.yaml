@@ -71,7 +71,8 @@ spec:
               value: "8000"
             - name: PAPERLESS_TIME_ZONE
               value: Europe/Berlin
-            # Behind traefik: rate-limit logins per client IP, not traefik's.
+            # Behind traefik: rate-limit logins per X-Forwarded-For IP, not traefik's.
+            # With externalTrafficPolicy Cluster that is the SNATed node IP, not the client.
             - name: PAPERLESS_ALLAUTH_TRUSTED_PROXY_COUNT
               value: "1"
             - name: PAPERLESS_SECRET_KEY
