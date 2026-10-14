@@ -73,6 +73,23 @@ spec:
               memory: 16Mi
             limits:
               memory: 64Mi
+        - name: wait-for-radarr
+          image: ghcr.io/linuxserver/bazarr:v1.6.2-ls367
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - until curl -fsk -m 5 -o /dev/null "https://radarr.${EXTERNAL_DOMAIN}/ping"; do echo "waiting for sonarr"; sleep 5; done
+          securityContext:
+            runAsUser: 2000
+            runAsGroup: 2000
+            runAsNonRoot: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
       containers:
         - name: bazarr
           image: ghcr.io/linuxserver/bazarr:v1.6.2-ls367
@@ -124,6 +141,11 @@ spec:
                 secretKeyRef:
                   name: arr
                   key: sonarr_api_key
+            - name: RADARR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: arr
+                  key: radarr_api_key
             - name: UI_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -157,6 +179,20 @@ spec:
               value: /
             - name: DYNACONF_sonarr__apikey
               value: "@str $(SONARR_API_KEY)"
+            - name: DYNACONF_general__use_radarr
+              value: "true"
+            # Through the ingress like a browser (CoreDNS hairpins it to
+            # traefik). Bazarr does not verify Radarr's certificate.
+            - name: DYNACONF_radarr__ip
+              value: radarr.${EXTERNAL_DOMAIN}
+            - name: DYNACONF_radarr__port
+              value: "443"
+            - name: DYNACONF_radarr__ssl
+              value: "true"
+            - name: DYNACONF_radarr__base_url
+              value: /
+            - name: DYNACONF_radarr__apikey
+              value: "@str $(RADARR_API_KEY)"
           ports:
             - name: http
               containerPort: 6767
