@@ -41,7 +41,7 @@ spec:
         cert-manager.io/cluster-issuer: letsencrypt-prod
         gethomepage.dev/enabled: "true"
         gethomepage.dev/name: "Jellyfin"
-        gethomepage.dev/group: "Media"
+        gethomepage.dev/group: "Services"
         gethomepage.dev/icon: "jellyfin.svg"
         gethomepage.dev/description: "Watch and listen"
         gethomepage.dev/weight: "10"

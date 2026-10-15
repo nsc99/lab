@@ -13,12 +13,7 @@ cardStyle: hairline
 iconStyle: theme
 useEqualHeights: true
 layout:
-  Media:
+  Services:
+    header: false
     style: row
-    columns: 3
-  Home:
-    style: row
-    columns: 2
-  Downloads:
-    style: row
-    columns: 5
+    columns: 4

@@ -19,6 +19,9 @@ configMapGenerator:
       - custom.js
       - offline.html
       - sw.js
+      # Flux excludes JPEG filenames from source artifacts. Preserve the JPEG
+      # bytes as a deployment asset and mount it under its normal public name.
+      - background.jpeg=background.asset
     literals:
       - 'bookmarks.yaml=[]'
       - 'docker.yaml={}'

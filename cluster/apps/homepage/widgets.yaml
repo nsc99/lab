@@ -1,7 +1,2 @@
 ---
-- greeting:
-    text: Junk Lab.
-    text_size: 4xl
-- search:
-    provider: duckduckgo
-    target: _blank
+[]

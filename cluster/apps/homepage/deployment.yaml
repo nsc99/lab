@@ -99,6 +99,10 @@ spec:
               mountPath: /app/public/offline.html
               subPath: offline.html
               readOnly: true
+            - name: config
+              mountPath: /app/public/background.jpeg
+              subPath: background.jpeg
+              readOnly: true
       volumes:
         - name: config
           configMap:

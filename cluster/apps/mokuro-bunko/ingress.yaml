@@ -7,7 +7,7 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Mokuro Bunko"
-    gethomepage.dev/group: "Media"
+    gethomepage.dev/group: "Services"
     gethomepage.dev/icon: "mdi-book-open-page-variant"
     gethomepage.dev/description: "Read manga"
     gethomepage.dev/weight: "30"

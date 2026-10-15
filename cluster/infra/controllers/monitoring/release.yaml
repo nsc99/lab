@@ -85,10 +85,10 @@ spec:
           cert-manager.io/cluster-issuer: "letsencrypt-prod"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/name: "Grafana"
-          gethomepage.dev/group: "Home"
+          gethomepage.dev/group: "Services"
           gethomepage.dev/icon: "grafana.svg"
           gethomepage.dev/description: "Monitoring and alerts"
-          gethomepage.dev/weight: "20"
+          gethomepage.dev/weight: "50"
           gethomepage.dev/external: "true"
         hosts:
           - grafana.${EXTERNAL_DOMAIN}

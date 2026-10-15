@@ -1,153 +1,79 @@
-/* Warm charcoal, generous space, and the original applications' familiar icons. */
+/* One static photograph and compact glass cards; no decorative scripts. */
 :root {
   color-scheme: dark;
-  --lab-background: #17191c;
-  --lab-surface: #202328;
-  --lab-icon: #2c3036;
-  --lab-ink: #edece8;
-  --lab-muted: #aaa9a3;
-  --lab-line: #383d45;
-  --lab-accent: #e99a74;
+  --lab-ink: #f6f0ec;
+  --lab-muted: #c4b8b8;
+  --lab-accent: #f3ba9d;
+  --lab-line: #ffffff24;
 }
-
-html, body, #page_wrapper, #inner_wrapper {
-  background: var(--lab-background) !important;
+html, body, #__next, #page_wrapper, #inner_wrapper {
+  background: transparent !important;
   color: var(--lab-ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
-
+html { background: #171318 !important; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: -8px;
+  z-index: -1;
+  background: linear-gradient(#14101855, #14101899), url("/background.jpeg") center / cover no-repeat;
+  filter: blur(3px);
+  pointer-events: none;
+}
 #inner_wrapper > .container {
-  max-width: 1240px;
-  padding: 0 48px;
+  max-width: 1120px;
+  padding: clamp(32px, 12vh, 120px) 28px 24px;
 }
-
-#information-widgets {
-  margin: 0 !important;
-  padding: 72px 0 44px !important;
-  border-bottom: 1px solid var(--lab-line);
-}
-
-#widgets-wrap { align-items: center; gap: 24px; }
-.information-widget-greeting { padding: 0 !important; }
-.information-widget-greeting::before {
-  content: "自宅サーバー  /  HOMELAB";
-  display: block;
-  margin-bottom: 18px;
-  color: var(--lab-accent);
-  font: 11px/1.5 ui-monospace, monospace;
-  letter-spacing: .16em;
-}
-.information-widget-greeting span {
-  color: var(--lab-ink) !important;
-  font: 76px/1.08 Georgia, "Times New Roman", serif !important;
-  letter-spacing: -.055em;
-}
-.information-widget-greeting::after {
-  content: "A little corner of home.";
-  display: block;
-  margin-top: 18px;
-  color: var(--lab-muted);
-  font-size: 15px;
-}
-
-#information-widgets-right {
-  flex-direction: column;
-  align-items: flex-end;
-  flex-grow: 0;
-  gap: 16px;
-}
-.information-widget-search {
-  width: 280px;
-  border: 1px solid var(--lab-line);
-  border-radius: 8px;
-  background: var(--lab-surface);
-}
-.information-widget-search .relative.h-8 { margin: 0; height: 42px; }
-.information-widget-search input {
-  border: 0;
-  background: transparent;
-  color: var(--lab-ink);
-  padding-left: 14px;
-  font-size: 13px;
-}
-.information-widget-search input::placeholder { color: var(--lab-muted); opacity: 1; }
-.information-widget-search button {
-  background: transparent;
-  color: var(--lab-accent);
-  bottom: 6px;
-}
-.information-widget-search button svg { color: var(--lab-accent); }
-
+#information-widgets { display: none; }
 #inner_wrapper > .container > div:has(> .services-group) {
-  margin: 34px 0 0 !important;
-  gap: 32px;
+  margin: 0 !important;
+  gap: 0;
 }
 .services-group { padding: 0 !important; }
-.services-group h2 {
-  color: var(--lab-muted) !important;
-  font: 11px/1.5 ui-monospace, monospace;
-  text-transform: uppercase;
-  letter-spacing: .15em;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
+.services-list {
+  gap: 10px !important;
+  margin: 0 !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
 }
-.services-group:nth-child(1) h2::before { content: "01"; }
-.services-group:nth-child(2) h2::before { content: "02"; }
-.services-group:nth-child(3) h2::before { content: "03"; }
-.services-group h2::before { color: var(--lab-accent); }
-.services-list { gap: 14px !important; margin-top: 16px !important; }
-
-.service[data-name="Jellyfin"] { --service-accent: #b894f6; }
-.service[data-name="Seerr"] { --service-accent: #a39aff; }
-.service[data-name="Mokuro Bunko"] { --service-accent: #e6b67b; }
-.service[data-name="Home Assistant"] { --service-accent: #65c9e8; }
-.service[data-name="Grafana"] { --service-accent: #f3a365; }
-.service[data-name="qBittorrent"] { --service-accent: #83b5f1; }
-.service[data-name="Sonarr"] { --service-accent: #88ccdc; }
-.service[data-name="Radarr"] { --service-accent: #e5c76e; }
-.service[data-name="Bazarr"] { --service-accent: #92c9a4; }
-.service[data-name="Prowlarr"] { --service-accent: #eea186; }
-
 .service-card {
   margin: 0 !important;
-  padding: 18px !important;
+  padding: 16px !important;
   border: 1px solid var(--lab-line);
-  border-radius: 12px !important;
-  background: var(--lab-surface) !important;
-  box-shadow: 0 2px 2px #00000008 !important;
+  border-radius: 14px !important;
+  background: #211b26a6 !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 #ffffff0a, 0 4px 18px #00000018 !important;
   transition: none;
 }
-.service-card:hover, .service-card:focus-within {
-  border-color: color-mix(in srgb, var(--service-accent, var(--lab-accent)) 60%, var(--lab-line));
-}
-.service-title { align-items: center; gap: 12px; }
+.service-card:hover, .service-card:focus-within { border-color: #f3ba9d99; background: #302431bd !important; }
+.service-title { align-items: center; gap: 10px; }
 .service-icon {
-  width: 48px !important;
-  height: 48px;
+  width: 36px !important;
+  height: 36px;
   flex-shrink: 0;
-  padding: 10px;
-  background: var(--lab-icon);
-  border-radius: 12px;
+  padding: 7px;
+  background: #ffffff0a;
+  border: 1px solid #ffffff0c;
+  border-radius: 10px;
 }
-.service-icon img, .service-icon svg { width: 28px; height: 28px; }
+.service-icon img, .service-icon svg { width: 22px; height: 22px; }
 .service-name {
-  padding: 4px 0 !important;
+  padding: 2px 0 !important;
   color: var(--lab-ink) !important;
-  font-size: 15px !important;
+  font-size: 14px !important;
   font-weight: 500;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   letter-spacing: -.02em;
 }
 .service-description {
-  margin-top: 5px;
+  margin-top: 4px;
   color: var(--lab-muted) !important;
-  font-size: 12px !important;
+  font-size: 11px !important;
   font-weight: 400 !important;
   letter-spacing: 0;
 }
-/* Stretch the native application link over the card's padding and empty area.
-   Keep the icon's native link above it; both links have the same destination. */
+/* Preserve the full-card link and the native health button above it. */
 a.service-title-text::before {
   content: "";
   position: absolute;
@@ -155,62 +81,41 @@ a.service-title-text::before {
   z-index: 1;
   cursor: pointer;
 }
-.service-card:has(a:focus-visible) {
-  outline: 2px solid var(--lab-accent);
-  outline-offset: -2px;
-}
+.service-card:has(a:focus-visible) { outline: 2px solid var(--lab-accent); outline-offset: -2px; }
 .service-card a:focus-visible { outline: none; }
-.service-title-text::after {
-  content: "↗";
-  color: var(--lab-muted);
-  font-size: 17px;
+.service-tags { top: 2px !important; right: 2px !important; }
+.k8s-status { padding: 8px !important; background: transparent !important; }
+.k8s-status > div { width: 5px; height: 5px; }
+.service-stats {
+  pointer-events: none;
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px solid #ffffff16;
+  max-height: none !important;
+  transition: none !important;
 }
-.services-group:first-child .service-card {
-  min-height: 148px;
-  padding: 24px !important;
-  border-top: 3px solid var(--service-accent, var(--lab-accent));
+.service-card > .service-container {
+  pointer-events: none;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid #ffffff16;
 }
-.services-group:first-child .service-title { align-items: flex-start; }
-.services-group:first-child .service-name { font-size: 19px !important; }
-.services-group:first-child .service-icon { background: #342e2a; }
-.services-group:last-child .service-card { padding: 14px !important; }
-.services-group:last-child .service-title { gap: 9px; }
-.services-group:last-child .service-icon { width: 36px !important; height: 36px; padding: 7px; border-radius: 9px; }
-.services-group:last-child .service-icon img { width: 22px; height: 22px; }
-.services-group:last-child .service-name { font-size: 13px !important; }
-.services-group:last-child .service-title-text::after { display: none; }
-
-a:focus-visible, button:focus-visible, input:focus-visible {
-  outline: 2px solid var(--lab-accent);
-  outline-offset: 4px;
-}
-#footer {
-  margin: 48px 0 0;
-  padding: 22px 0 !important;
-  border-top: 1px solid var(--lab-line);
-  position: relative;
-}
-#footer::before {
-  content: "JUNK LAB  /  ジャンク";
-  position: absolute;
-  color: var(--lab-muted);
-  font: 10px/1.5 ui-monospace, monospace;
-  letter-spacing: .12em;
-}
-
+.service-block { margin: 0; padding: 0; background: transparent !important; animation: none !important; }
+.service-block + .service-block { border-left: 1px solid #ffffff16; }
+.service-block-value { color: var(--lab-ink); font-size: 13px !important; font-weight: 500 !important; }
+.service-block-label { color: var(--lab-muted); font-size: 9px !important; opacity: 1 !important; margin-top: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 3px; }
+#footer { margin: 16px 0 0; padding: 0 !important; }
 @media (max-width: 900px) {
-  #inner_wrapper > .container { padding: 0 28px; }
-  .services-group:last-child .services-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .services-group:first-child .service-card { padding: 18px !important; }
+  .services-list { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
 @media (max-width: 640px) {
-  #inner_wrapper > .container { padding: 0 20px; }
-  #information-widgets { padding: 36px 0 28px !important; }
-  .information-widget-greeting span { font-size: 56px !important; }
-  #information-widgets-right { align-items: flex-start; width: 100%; margin-top: 12px; }
-  .information-widget-search { width: 100%; }
-  #inner_wrapper > .container > div:has(> .services-group) { gap: 26px; }
-  .services-group .services-list { grid-template-columns: 1fr !important; }
-  .services-group:first-child .service-card { min-height: 96px; }
-  .service-card { padding: 16px !important; }
+  #inner_wrapper > .container { padding: 24px 14px; }
+  .services-list { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
+  .service-card { padding: 14px 10px !important; }
+  .service-title { gap: 7px; }
+  .service-icon { width: 28px !important; height: 28px; padding: 5px; border-radius: 8px; }
+  .service-icon img, .service-icon svg { width: 18px; height: 18px; }
+  .service-name { font-size: 12px !important; }
+  .service-description { font-size: 10px !important; }
 }
