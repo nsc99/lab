@@ -39,9 +39,15 @@ provision:
       useradd -r -u 2000 -g media media
       install -d -m 0775 -o media -g media /tank/media
       install -d -m 0755 /tank/k8s
+      groupadd -g 4000 documents
+      useradd -r -u 4000 -g documents documents
+      for d in "" media data consume export; do
+        install -d -m 0770 -o documents -g documents "/tank/documents/$d"
+      done
       cat >/etc/exports <<'EOF'
-      /tank/media *(rw,async,no_subtree_check,all_squash,anonuid=2000,anongid=2000)
-      /tank/k8s   *(rw,sync,no_subtree_check,no_root_squash)
+      /tank/media     *(rw,async,no_subtree_check,all_squash,anonuid=2000,anongid=2000)
+      /tank/k8s       *(rw,sync,no_subtree_check,no_root_squash)
+      /tank/documents *(rw,sync,no_subtree_check,all_squash,anonuid=4000,anongid=4000)
       EOF
       cat >/etc/nfs.conf.d/lab.conf <<'EOF'
       [nfsd]

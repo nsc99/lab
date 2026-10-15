@@ -1,0 +1,100 @@
+---
+# Office (LibreOffice) and e-mail/HTML (Chromium) to PDF for paperless.
+# Upstream's lockdown (no JavaScript, only local files) plus no remote
+# downloads and no webhooks; the NetworkPolicy also denies all egress.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gotenberg
+  namespace: paperless
+  labels:
+    app.kubernetes.io/name: gotenberg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gotenberg
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gotenberg
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [nix-optiplex1]
+      securityContext:
+        # gotenberg user of the image
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gotenberg
+          image: gotenberg/gotenberg:8.37.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - gotenberg
+            - --chromium-disable-javascript=true
+            - --chromium-allow-list=^file:///tmp/.*
+            - --api-disable-download-from=true
+            - --webhook-disable=true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gotenberg
+  namespace: paperless
+  labels:
+    app.kubernetes.io/name: gotenberg
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: gotenberg
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http

@@ -98,6 +98,16 @@ in
           };
         };
 
+        # paperless-ngx documents, index and consume dir (nfs-server.nix).
+        documents = {
+          type = "zfs_fs";
+          mountpoint = "/tank/documents";
+          options = {
+            mountpoint = "legacy";
+            "com.sun:auto-snapshot" = "true";
+          };
+        };
+
         reserved = {
           type = "zfs_fs";
           options = {

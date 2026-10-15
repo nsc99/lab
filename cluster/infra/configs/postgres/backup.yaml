@@ -34,7 +34,7 @@ data:
     umask 077
     stamp=$(date -u +%Y%m%dT%H%M%SZ)
     # <db>:<owner>; the owner's password comes from PGPASSWORD_<OWNER>.
-    for entry in sonarr-main:sonarr sonarr-log:sonarr prowlarr-main:prowlarr prowlarr-log:prowlarr bazarr:bazarr radarr-main:radarr radarr-log:radarr seerr:seerr; do
+    for entry in sonarr-main:sonarr sonarr-log:sonarr prowlarr-main:prowlarr prowlarr-log:prowlarr bazarr:bazarr radarr-main:radarr radarr-log:radarr seerr:seerr paperless:paperless; do
       db=${entry%%:*}
       owner=${entry#*:}
       pw_var="PGPASSWORD_${owner^^}"
@@ -104,6 +104,11 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: postgres-seerr
+                      key: password
+                - name: PGPASSWORD_PAPERLESS
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-paperless
                       key: password
               securityContext:
                 allowPrivilegeEscalation: false

@@ -1,0 +1,131 @@
+---
+# Personal documents: paperless only talks to DNS, Postgres and its three
+# backends, and only traefik reaches it. Valkey, Tika and Gotenberg have no
+# authentication, so only paperless may reach them, and they reach nothing:
+# Tika and Gotenberg parse untrusted files (Gotenberg runs Chromium).
+# Kubelet probes come from the node and are not affected.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: paperless
+  namespace: paperless
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: paperless
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: postgres
+          podSelector:
+            matchLabels:
+              cnpg.io/cluster: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: valkey
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: tika
+      ports:
+        - protocol: TCP
+          port: 9998
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gotenberg
+      ports:
+        - protocol: TCP
+          port: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: valkey
+  namespace: paperless
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: valkey
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: paperless
+      ports:
+        - protocol: TCP
+          port: 6379
+  egress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tika
+  namespace: paperless
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: tika
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: paperless
+      ports:
+        - protocol: TCP
+          port: 9998
+  egress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gotenberg
+  namespace: paperless
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gotenberg
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: paperless
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress: []
