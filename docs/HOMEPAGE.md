@@ -28,7 +28,9 @@ Ingress annotations.
 Shared configuration lives in `cluster/apps/homepage/`:
 `settings.yaml` controls the group order and layout, and
 `widgets.yaml` defines the title, clock and search widget. `custom.css` supplies
-the warm paper palette, typography, responsive cards and keyboard focus styles.
+the warm charcoal palette, typography, responsive cards and keyboard focus styles.
+The native application link covers each card, including its padding and empty
+space; keyboard focus highlights the entire card.
 Flux substitutes `${EXTERNAL_DOMAIN}` in Ingress hosts and the allowed Host
 header. Kustomize generates
 a ConfigMap with a content hash so configuration changes roll the Deployment.

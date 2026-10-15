@@ -1,14 +1,17 @@
-/* Warm paper, generous space, and the original applications' familiar icons. */
+/* Warm charcoal, generous space, and the original applications' familiar icons. */
 :root {
-  --lab-paper: #f3f0e8;
-  --lab-ink: #302e29;
-  --lab-muted: #777367;
-  --lab-line: #dcd7cb;
-  --lab-accent: #a6462d;
+  color-scheme: dark;
+  --lab-background: #17191c;
+  --lab-surface: #202328;
+  --lab-icon: #2c3036;
+  --lab-ink: #edece8;
+  --lab-muted: #aaa9a3;
+  --lab-line: #383d45;
+  --lab-accent: #e99a74;
 }
 
 body, #page_wrapper, #inner_wrapper {
-  background: var(--lab-paper) !important;
+  background: var(--lab-background) !important;
   color: var(--lab-ink);
 }
 
@@ -57,15 +60,17 @@ body, #page_wrapper, #inner_wrapper {
   width: 280px;
   border: 1px solid var(--lab-line);
   border-radius: 8px;
-  background: #faf8f3;
+  background: var(--lab-surface);
 }
 .information-widget-search .relative.h-8 { margin: 0; height: 42px; }
 .information-widget-search input {
   border: 0;
   background: transparent;
+  color: var(--lab-ink);
   padding-left: 14px;
   font-size: 13px;
 }
+.information-widget-search input::placeholder { color: var(--lab-muted); opacity: 1; }
 .information-widget-search button {
   background: transparent;
   color: var(--lab-accent);
@@ -97,13 +102,13 @@ body, #page_wrapper, #inner_wrapper {
   padding: 18px !important;
   border: 1px solid var(--lab-line);
   border-radius: 12px !important;
-  background: #faf8f3 !important;
-  box-shadow: 0 2px 2px #302e2903 !important;
+  background: var(--lab-surface) !important;
+  box-shadow: 0 2px 2px #00000008 !important;
   transition: border-color .18s, box-shadow .18s, transform .18s;
 }
 .service-card:hover, .service-card:focus-within {
-  border-color: #b7a899;
-  box-shadow: 0 8px 24px #302e290a !important;
+  border-color: #89705c;
+  box-shadow: 0 8px 24px #00000030 !important;
   transform: translateY(-3px);
 }
 .service-title { align-items: center; gap: 12px; }
@@ -112,7 +117,7 @@ body, #page_wrapper, #inner_wrapper {
   height: 48px;
   flex-shrink: 0;
   padding: 10px;
-  background: #ece8de;
+  background: var(--lab-icon);
   border-radius: 12px;
 }
 .service-icon img, .service-icon svg { width: 28px; height: 28px; }
@@ -131,19 +136,33 @@ body, #page_wrapper, #inner_wrapper {
   font-weight: 400 !important;
   letter-spacing: 0;
 }
+/* Stretch the native application link over the card's padding and empty area.
+   Keep the icon's native link above it; both links have the same destination. */
+a.service-title-text::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+.service-card:has(a:focus-visible) {
+  outline: 2px solid var(--lab-accent);
+  outline-offset: -2px;
+}
+.service-card a:focus-visible { outline: none; }
 .service-title-text::after {
   content: "↗";
-  color: #9a9485;
+  color: var(--lab-muted);
   font-size: 17px;
 }
 .services-group:first-child .service-card {
   min-height: 148px;
   padding: 24px !important;
-  border-top: 3px solid #a6462d;
+  border-top: 3px solid var(--lab-accent);
 }
 .services-group:first-child .service-title { align-items: flex-start; }
 .services-group:first-child .service-name { font-size: 19px !important; }
-.services-group:first-child .service-icon { background: #eee2d6; }
+.services-group:first-child .service-icon { background: #342e2a; }
 .services-group:last-child .service-card { padding: 14px !important; }
 .services-group:last-child .service-title { gap: 9px; }
 .services-group:last-child .service-icon { width: 36px !important; height: 36px; padding: 7px; border-radius: 9px; }

@@ -1,7 +1,7 @@
 ---
 title: Junk Lab
 description: Homelab services
-theme: light
+theme: dark
 color: stone
 font: plex
 headerStyle: clean
@@ -11,6 +11,7 @@ disableUpdateCheck: true
 disableCollapse: true
 disableIndexing: true
 cardStyle: hairline
+iconStyle: theme
 useEqualHeights: true
 layout:
   Media:
