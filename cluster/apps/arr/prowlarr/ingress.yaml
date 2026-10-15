@@ -12,7 +12,6 @@ metadata:
     gethomepage.dev/icon: "prowlarr.svg"
     gethomepage.dev/description: "Indexer management"
     gethomepage.dev/weight: "100"
-    gethomepage.dev/external: "true"
 spec:
   ingressClassName: traefik
   tls:

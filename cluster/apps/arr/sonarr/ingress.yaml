@@ -12,7 +12,6 @@ metadata:
     gethomepage.dev/icon: "sonarr.svg"
     gethomepage.dev/description: "Series library"
     gethomepage.dev/weight: "70"
-    gethomepage.dev/external: "true"
 spec:
   ingressClassName: traefik
   tls:

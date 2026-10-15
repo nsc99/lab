@@ -4,8 +4,8 @@ kind: ServiceAccount
 metadata:
   name: homepage
 ---
-# Homepage v2.5.0 enumerates Ingresses across namespaces. Link-only entries
-# (external: true) do not query pods or metrics; no other API access is needed.
+# Ingress discovery and native per-service health/CPU/memory stats.
+# Read-only lists only: no Secrets, logs, exec or mutation permissions.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -13,6 +13,12 @@ metadata:
 rules:
   - apiGroups: [networking.k8s.io]
     resources: [ingresses]
+    verbs: [list]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [list]
+  - apiGroups: [metrics.k8s.io]
+    resources: [pods]
     verbs: [list]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

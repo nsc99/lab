@@ -12,7 +12,6 @@ metadata:
     gethomepage.dev/icon: "bazarr.svg"
     gethomepage.dev/description: "Subtitles"
     gethomepage.dev/weight: "90"
-    gethomepage.dev/external: "true"
 spec:
   ingressClassName: traefik
   tls:

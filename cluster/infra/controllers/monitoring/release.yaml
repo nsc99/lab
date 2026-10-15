@@ -89,7 +89,7 @@ spec:
           gethomepage.dev/icon: "grafana.svg"
           gethomepage.dev/description: "Monitoring and alerts"
           gethomepage.dev/weight: "50"
-          gethomepage.dev/external: "true"
+          gethomepage.dev/pod-selector: "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=observability"
         hosts:
           - grafana.${EXTERNAL_DOMAIN}
         path: /

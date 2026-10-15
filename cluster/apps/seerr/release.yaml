@@ -69,7 +69,7 @@ spec:
         gethomepage.dev/icon: "seerr.svg"
         gethomepage.dev/description: "Media requests"
         gethomepage.dev/weight: "20"
-        gethomepage.dev/external: "true"
+        gethomepage.dev/pod-selector: "app.kubernetes.io/name=seerr-chart"
         traefik.ingress.kubernetes.io/router.entrypoints: websecure,public
       hosts:
         - host: seerr.${EXTERNAL_DOMAIN}

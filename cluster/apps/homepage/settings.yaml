@@ -12,6 +12,8 @@ disableIndexing: true
 cardStyle: hairline
 iconStyle: theme
 useEqualHeights: true
+showStats: true
+blockStyle: refined
 layout:
   Services:
     header: false

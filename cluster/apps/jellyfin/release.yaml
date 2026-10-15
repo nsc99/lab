@@ -45,7 +45,6 @@ spec:
         gethomepage.dev/icon: "jellyfin.svg"
         gethomepage.dev/description: "Watch and listen"
         gethomepage.dev/weight: "10"
-        gethomepage.dev/external: "true"
         traefik.ingress.kubernetes.io/router.entrypoints: websecure,public
       hosts:
         - host: jellyfin.${EXTERNAL_DOMAIN}

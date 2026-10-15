@@ -42,7 +42,6 @@ spec:
         gethomepage.dev/icon: "home-assistant.svg"
         gethomepage.dev/description: "Home automation"
         gethomepage.dev/weight: "40"
-        gethomepage.dev/external: "true"
       hosts:
         - host: home.${EXTERNAL_DOMAIN}
           paths:

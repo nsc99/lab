@@ -12,7 +12,6 @@ metadata:
     gethomepage.dev/icon: "radarr.svg"
     gethomepage.dev/description: "Movie library"
     gethomepage.dev/weight: "80"
-    gethomepage.dev/external: "true"
 spec:
   ingressClassName: traefik
   tls:

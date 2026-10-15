@@ -11,7 +11,7 @@ metadata:
     gethomepage.dev/icon: "mdi-book-open-page-variant"
     gethomepage.dev/description: "Read manga"
     gethomepage.dev/weight: "30"
-    gethomepage.dev/external: "true"
+    gethomepage.dev/pod-selector: "name=mokuro-bunko"
 spec:
   ingressClassName: traefik
   tls:

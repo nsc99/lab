@@ -11,7 +11,7 @@ metadata:
     gethomepage.dev/icon: "qbittorrent.svg"
     gethomepage.dev/description: "Download queue"
     gethomepage.dev/weight: "60"
-    gethomepage.dev/external: "true"
+    gethomepage.dev/pod-selector: "name=gluetun"
 spec:
   ingressClassName: traefik
   tls:
