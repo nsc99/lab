@@ -1,6 +1,6 @@
 # Homepage
 
-Homepage is served at `https://homepage.schweigert.io` on the LAN and tailnet.
+Homepage is served at `https://lab.schweigert.io` on the LAN and tailnet.
 The ingress uses the existing DNS and cert-manager setup and has no `public`
 entrypoint. There is no application login; access follows the lab's private
 ingress convention.
@@ -104,7 +104,7 @@ The container is pinned to upstream `ghcr.io/gethomepage/homepage:v2.5.0`
 Renovate's existing Kubernetes manager tracks the image.
 
 For local testing, use the workflow in [LOCAL.md](LOCAL.md). The dashboard is
-available through the local ingress as `https://homepage.lab.test`, with the
+available through the local ingress as `https://lab.lab.test`, with the
 local self-signed certificate. No Homepage-specific overrides are needed.
 
 For a browser preview at `http://localhost:3000`, run the reconnecting forward

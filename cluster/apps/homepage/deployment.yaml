@@ -47,7 +47,7 @@ spec:
                 name: homepage-widget-credentials
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: homepage.${EXTERNAL_DOMAIN}
+              value: lab.${EXTERNAL_DOMAIN}
             - name: HOSTNAME
               value: 0.0.0.0
           ports:

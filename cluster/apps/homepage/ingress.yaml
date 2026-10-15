@@ -10,9 +10,9 @@ spec:
   tls:
     - secretName: homepage-tls
       hosts:
-        - homepage.${EXTERNAL_DOMAIN}
+        - lab.${EXTERNAL_DOMAIN}
   rules:
-    - host: homepage.${EXTERNAL_DOMAIN}
+    - host: lab.${EXTERNAL_DOMAIN}
       http:
         paths:
           - path: /
