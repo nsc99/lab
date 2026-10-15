@@ -8,6 +8,7 @@ resources:
   - service.yaml
   - ingress.yaml
   - rbac.yaml
+  - secret.yaml
 configMapGenerator:
   # The name hash rolls the Deployment when configuration changes.
   - name: homepage-config

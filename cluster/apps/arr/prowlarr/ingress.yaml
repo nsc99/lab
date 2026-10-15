@@ -12,6 +12,10 @@ metadata:
     gethomepage.dev/icon: "prowlarr.svg"
     gethomepage.dev/description: "Indexer management"
     gethomepage.dev/weight: "100"
+    gethomepage.dev/widget.type: "prowlarr"
+    gethomepage.dev/widget.url: "https://prowlarr.${EXTERNAL_DOMAIN}"
+    gethomepage.dev/widget.fields: '["numberOfQueries", "numberOfGrabs"]'
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
 spec:
   ingressClassName: traefik
   tls:

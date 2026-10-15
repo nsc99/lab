@@ -41,6 +41,10 @@ spec:
                       sleep 1
                     done
                     exit 1
+          envFrom:
+            - prefix: HOMEPAGE_VAR_
+              secretRef:
+                name: homepage-widget-credentials
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: homepage.${EXTERNAL_DOMAIN}

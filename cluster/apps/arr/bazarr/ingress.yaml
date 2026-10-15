@@ -12,6 +12,10 @@ metadata:
     gethomepage.dev/icon: "bazarr.svg"
     gethomepage.dev/description: "Subtitles"
     gethomepage.dev/weight: "90"
+    gethomepage.dev/widget.type: "bazarr"
+    gethomepage.dev/widget.url: "https://bazarr.${EXTERNAL_DOMAIN}"
+    gethomepage.dev/widget.fields: '["missingEpisodes", "missingMovies"]'
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
 spec:
   ingressClassName: traefik
   tls:

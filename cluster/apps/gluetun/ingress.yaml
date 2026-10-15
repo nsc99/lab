@@ -12,6 +12,11 @@ metadata:
     gethomepage.dev/description: "Download queue"
     gethomepage.dev/weight: "60"
     gethomepage.dev/pod-selector: "name=gluetun"
+    gethomepage.dev/widget.type: "qbittorrent"
+    gethomepage.dev/widget.url: "https://q.${EXTERNAL_DOMAIN}"
+    gethomepage.dev/widget.fields: '["leech", "download", "seed", "upload"]'
+    gethomepage.dev/widget.username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
+    gethomepage.dev/widget.password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
 spec:
   ingressClassName: traefik
   tls:
