@@ -13,7 +13,8 @@ spec:
       labels:
         app.kubernetes.io/name: homepage
     spec:
-      automountServiceAccountToken: false
+      serviceAccountName: homepage
+      automountServiceAccountToken: true
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

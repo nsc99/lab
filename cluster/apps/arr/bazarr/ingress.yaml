@@ -6,6 +6,13 @@ metadata:
   namespace: arr
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Bazarr"
+    gethomepage.dev/group: "Downloads"
+    gethomepage.dev/icon: "bazarr.svg"
+    gethomepage.dev/description: "Subtitles"
+    gethomepage.dev/weight: "40"
+    gethomepage.dev/external: "true"
 spec:
   ingressClassName: traefik
   tls:

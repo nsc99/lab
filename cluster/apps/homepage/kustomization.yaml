@@ -7,17 +7,18 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - rbac.yaml
 configMapGenerator:
   # The name hash rolls the Deployment when configuration changes.
   - name: homepage-config
     files:
       - settings.yaml
-      - services.yaml
+      - kubernetes.yaml
       - widgets.yaml
       - custom.css
     literals:
       - 'bookmarks.yaml=[]'
       - 'docker.yaml={}'
-      - 'kubernetes.yaml={}'
+      - 'services.yaml=[]'
       - 'proxmox.yaml={}'
       - 'custom.js='

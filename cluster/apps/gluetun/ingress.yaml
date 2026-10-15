@@ -5,6 +5,13 @@ metadata:
   namespace: gluetun
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "qBittorrent"
+    gethomepage.dev/group: "Downloads"
+    gethomepage.dev/icon: "qbittorrent.svg"
+    gethomepage.dev/description: "Download queue"
+    gethomepage.dev/weight: "10"
+    gethomepage.dev/external: "true"
 spec:
   ingressClassName: traefik
   tls:
