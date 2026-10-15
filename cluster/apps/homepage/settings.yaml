@@ -1,0 +1,24 @@
+---
+title: Junk Lab
+description: Homelab services
+theme: light
+color: stone
+font: plex
+headerStyle: clean
+statusStyle: dot
+hideVersion: true
+disableUpdateCheck: true
+disableCollapse: true
+disableIndexing: true
+cardStyle: hairline
+useEqualHeights: true
+layout:
+  Media:
+    style: row
+    columns: 3
+  Home:
+    style: row
+    columns: 2
+  Downloads:
+    style: row
+    columns: 5

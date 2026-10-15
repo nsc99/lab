@@ -1,0 +1,191 @@
+/* Warm paper, generous space, and the original applications' familiar icons. */
+:root {
+  --lab-paper: #f3f0e8;
+  --lab-ink: #302e29;
+  --lab-muted: #777367;
+  --lab-line: #dcd7cb;
+  --lab-accent: #a6462d;
+}
+
+body, #page_wrapper, #inner_wrapper {
+  background: var(--lab-paper) !important;
+  color: var(--lab-ink);
+}
+
+#inner_wrapper > .container {
+  max-width: 1240px;
+  padding: 0 48px;
+}
+
+#information-widgets {
+  margin: 0 !important;
+  padding: 72px 0 44px !important;
+  border-bottom: 1px solid var(--lab-line);
+}
+
+#widgets-wrap { align-items: center; gap: 24px; }
+.information-widget-greeting { padding: 0 !important; }
+.information-widget-greeting::before {
+  content: "自宅サーバー  /  HOMELAB";
+  display: block;
+  margin-bottom: 18px;
+  color: var(--lab-accent);
+  font: 11px/1.5 ui-monospace, monospace;
+  letter-spacing: .16em;
+}
+.information-widget-greeting span {
+  color: var(--lab-ink) !important;
+  font: 76px/1.08 Georgia, "Times New Roman", serif !important;
+  letter-spacing: -.055em;
+}
+.information-widget-greeting::after {
+  content: "A little corner of home.";
+  display: block;
+  margin-top: 18px;
+  color: var(--lab-muted);
+  font-size: 15px;
+}
+
+#information-widgets-right {
+  flex-direction: column;
+  align-items: flex-end;
+  flex-grow: 0;
+  gap: 16px;
+}
+.information-widget-datetime { color: var(--lab-muted); }
+.information-widget-search {
+  width: 280px;
+  border: 1px solid var(--lab-line);
+  border-radius: 8px;
+  background: #faf8f3;
+}
+.information-widget-search .relative.h-8 { margin: 0; height: 42px; }
+.information-widget-search input {
+  border: 0;
+  background: transparent;
+  padding-left: 14px;
+  font-size: 13px;
+}
+.information-widget-search button {
+  background: transparent;
+  color: var(--lab-accent);
+  bottom: 6px;
+}
+.information-widget-search button svg { color: var(--lab-accent); }
+
+#inner_wrapper > .container > div:has(> .services-group) {
+  margin: 34px 0 0 !important;
+  gap: 32px;
+}
+.services-group { padding: 0 !important; }
+.services-group h2 {
+  color: var(--lab-muted) !important;
+  font: 11px/1.5 ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  align-items: center;
+  gap: 12px;
+}
+.services-group:nth-child(1) h2::before { content: "01"; }
+.services-group:nth-child(2) h2::before { content: "02"; }
+.services-group:nth-child(3) h2::before { content: "03"; }
+.services-group h2::before { color: var(--lab-accent); }
+.services-list { gap: 14px !important; margin-top: 16px !important; }
+
+.service-card {
+  margin: 0 !important;
+  padding: 18px !important;
+  border: 1px solid var(--lab-line);
+  border-radius: 12px !important;
+  background: #faf8f3 !important;
+  box-shadow: 0 2px 2px #302e2903 !important;
+  transition: border-color .18s, box-shadow .18s, transform .18s;
+}
+.service-card:hover, .service-card:focus-within {
+  border-color: #b7a899;
+  box-shadow: 0 8px 24px #302e290a !important;
+  transform: translateY(-3px);
+}
+.service-title { align-items: center; gap: 12px; }
+.service-icon {
+  width: 48px !important;
+  height: 48px;
+  flex-shrink: 0;
+  padding: 10px;
+  background: #ece8de;
+  border-radius: 12px;
+}
+.service-icon img, .service-icon svg { width: 28px; height: 28px; }
+.service-name {
+  padding: 4px 0 !important;
+  color: var(--lab-ink) !important;
+  font-size: 15px !important;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: -.02em;
+}
+.service-description {
+  margin-top: 5px;
+  color: var(--lab-muted) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0;
+}
+.service-title-text::after {
+  content: "↗";
+  color: #9a9485;
+  font-size: 17px;
+}
+.services-group:first-child .service-card {
+  min-height: 148px;
+  padding: 24px !important;
+  border-top: 3px solid #a6462d;
+}
+.services-group:first-child .service-title { align-items: flex-start; }
+.services-group:first-child .service-name { font-size: 19px !important; }
+.services-group:first-child .service-icon { background: #eee2d6; }
+.services-group:last-child .service-card { padding: 14px !important; }
+.services-group:last-child .service-title { gap: 9px; }
+.services-group:last-child .service-icon { width: 36px !important; height: 36px; padding: 7px; border-radius: 9px; }
+.services-group:last-child .service-icon img { width: 22px; height: 22px; }
+.services-group:last-child .service-name { font-size: 13px !important; }
+.services-group:last-child .service-title-text::after { display: none; }
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--lab-accent);
+  outline-offset: 4px;
+}
+#footer {
+  margin: 48px 0 0;
+  padding: 22px 0 !important;
+  border-top: 1px solid var(--lab-line);
+  position: relative;
+}
+#footer::before {
+  content: "JUNK LAB  /  ジャンク";
+  position: absolute;
+  color: var(--lab-muted);
+  font: 10px/1.5 ui-monospace, monospace;
+  letter-spacing: .12em;
+}
+
+@media (max-width: 900px) {
+  #inner_wrapper > .container { padding: 0 28px; }
+  .services-group:last-child .services-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .services-group:first-child .service-card { padding: 18px !important; }
+}
+@media (max-width: 640px) {
+  #inner_wrapper > .container { padding: 0 20px; }
+  #information-widgets { padding: 36px 0 28px !important; }
+  .information-widget-greeting span { font-size: 56px !important; }
+  #information-widgets-right { align-items: flex-start; width: 100%; margin-top: 12px; }
+  .information-widget-search { width: 100%; }
+  #inner_wrapper > .container > div:has(> .services-group) { gap: 26px; }
+  .services-group .services-list { grid-template-columns: 1fr !important; }
+  .services-group:first-child .service-card { min-height: 96px; }
+  .service-card { padding: 16px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .service-card { transition: none; }
+  .service-card:hover, .service-card:focus-within { transform: none; }
+}

@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - gluetun
   - home-assistant
+  - homepage
   - mokuro-bunko
   - jellyfin
   - arr

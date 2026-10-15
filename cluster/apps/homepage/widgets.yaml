@@ -1,0 +1,14 @@
+---
+- greeting:
+    text: Junk Lab.
+    text_size: 4xl
+- datetime:
+    text_size: sm
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: false
+      timeZone: Europe/Berlin
+- search:
+    provider: duckduckgo
+    target: _blank

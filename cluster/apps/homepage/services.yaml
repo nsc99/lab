@@ -1,0 +1,44 @@
+---
+- Media:
+    - Jellyfin:
+        icon: jellyfin.svg
+        href: https://jellyfin.${EXTERNAL_DOMAIN}
+        description: Watch and listen
+    - Seerr:
+        icon: seerr.svg
+        href: https://seerr.${EXTERNAL_DOMAIN}
+        description: Media requests
+    - Mokuro Bunko:
+        icon: mdi-book-open-page-variant
+        href: https://bunko.${EXTERNAL_DOMAIN}
+        description: Read manga
+- Home:
+    - Home Assistant:
+        icon: home-assistant.svg
+        href: https://home.${EXTERNAL_DOMAIN}
+        description: Home automation
+    - Grafana:
+        icon: grafana.svg
+        href: https://grafana.${EXTERNAL_DOMAIN}
+        description: Monitoring and alerts
+- Downloads:
+    - qBittorrent:
+        icon: qbittorrent.svg
+        href: https://q.${EXTERNAL_DOMAIN}
+        description: Download queue
+    - Sonarr:
+        icon: sonarr.svg
+        href: https://sonarr.${EXTERNAL_DOMAIN}
+        description: Series library
+    - Radarr:
+        icon: radarr.svg
+        href: https://radarr.${EXTERNAL_DOMAIN}
+        description: Movie library
+    - Bazarr:
+        icon: bazarr.svg
+        href: https://bazarr.${EXTERNAL_DOMAIN}
+        description: Subtitles
+    - Prowlarr:
+        icon: prowlarr.svg
+        href: https://prowlarr.${EXTERNAL_DOMAIN}
+        description: Indexer management
