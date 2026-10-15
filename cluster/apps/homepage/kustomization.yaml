@@ -17,6 +17,8 @@ configMapGenerator:
       - widgets.yaml
       - custom.css
       - custom.js
+      - offline.html
+      - sw.js
     literals:
       - 'bookmarks.yaml=[]'
       - 'docker.yaml={}'

@@ -36,6 +36,24 @@ animation loops, pointer handlers, DOM observers or clock timers. Homepage's
 own React/Next.js client and search widget remain; this is not a zero-JavaScript
 dashboard.
 
+`custom.js` only registers `/sw.js` after page load. The service worker caches
+the self-contained `offline.html` page (HTML/CSS, no JavaScript or external
+assets). If the lab is unreachable, returns an HTTP error, or takes longer
+than 1.5 seconds to respond, the browser displays "Not connected to the lab"
+with a retry link and a normal web-search form. It does not cache dashboard
+HTML, service data, API responses or credentials. The private route's 404
+through Traefik's public entrypoint also shows the disconnected page.
+Homepage's immutable
+JavaScript/CSS assets continue using the browser's normal HTTP cache.
+
+Offline support needs one completed online visit to the exact start-page URL
+over HTTPS, in a normal browser profile. `http://localhost:3000` also works for
+testing because browsers treat localhost as a secure origin. Browser cache
+clearing/eviction removes the saved page; it cannot work on a first-ever offline
+visit. After reconnecting, "Try again" loads the current dashboard. When editing
+`offline.html`, update the cache suffix in `sw.js` to the first 12 characters
+of its SHA256 (`shasum -a 256 cluster/apps/homepage/offline.html`). Old offline
+caches are removed when the updated worker activates.
 Flux substitutes `${EXTERNAL_DOMAIN}` in Ingress hosts and the allowed Host
 header. Kustomize generates
 a ConfigMap with a content hash so configuration changes roll the Deployment.

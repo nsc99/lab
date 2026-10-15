@@ -90,6 +90,15 @@ spec:
               readOnly: true
             - name: logs
               mountPath: /app/config/logs
+            # Mount individual public files; keep Homepage's bundled assets.
+            - name: config
+              mountPath: /app/public/sw.js
+              subPath: sw.js
+              readOnly: true
+            - name: config
+              mountPath: /app/public/offline.html
+              subPath: offline.html
+              readOnly: true
       volumes:
         - name: config
           configMap:
