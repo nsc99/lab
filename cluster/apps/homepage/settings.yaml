@@ -3,7 +3,6 @@ title: Junk Lab
 description: Homelab services
 theme: dark
 color: stone
-font: plex
 headerStyle: clean
 statusStyle: dot
 hideVersion: true

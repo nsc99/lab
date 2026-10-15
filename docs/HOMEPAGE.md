@@ -27,15 +27,15 @@ Ingress annotations.
 
 Shared configuration lives in `cluster/apps/homepage/`:
 `settings.yaml` controls the group order and layout, and
-`widgets.yaml` defines the title, clock and search widget. `custom.css` supplies
+`widgets.yaml` defines the title and search widget. `custom.css` supplies
 the warm charcoal palette, typography, responsive cards and keyboard focus styles.
 The native application link covers each card, including its padding and empty
 space; keyboard focus highlights the entire card.
-`custom.js` adds a greeting based on Berlin time, counts the discovered apps,
-and positions a subtle glow under the pointer. The clock includes seconds;
-ambient light, staggered card entrances and hover motion respect the browser's
-reduced-motion preference. These effects do not query application APIs or
-represent service health.
+The page uses system fonts, static colors and native links. There are no custom
+animation loops, pointer handlers, DOM observers or clock timers. Homepage's
+own React/Next.js client and search widget remain; this is not a zero-JavaScript
+dashboard.
+
 Flux substitutes `${EXTERNAL_DOMAIN}` in Ingress hosts and the allowed Host
 header. Kustomize generates
 a ConfigMap with a content hash so configuration changes roll the Deployment.
