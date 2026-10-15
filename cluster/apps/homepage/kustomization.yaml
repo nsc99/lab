@@ -16,9 +16,9 @@ configMapGenerator:
       - kubernetes.yaml
       - widgets.yaml
       - custom.css
+      - custom.js
     literals:
       - 'bookmarks.yaml=[]'
       - 'docker.yaml={}'
       - 'services.yaml=[]'
       - 'proxmox.yaml={}'
-      - 'custom.js='

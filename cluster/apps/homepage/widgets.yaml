@@ -6,7 +6,7 @@
     text_size: sm
     format:
       dateStyle: long
-      timeStyle: short
+      timeStyle: medium
       hour12: false
       timeZone: Europe/Berlin
 - search:
