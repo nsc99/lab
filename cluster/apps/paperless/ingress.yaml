@@ -7,6 +7,12 @@ metadata:
   namespace: paperless
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Paperless"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "paperless-ngx.svg"
+    gethomepage.dev/description: "Documents and OCR"
+    gethomepage.dev/weight: "110"
 spec:
   ingressClassName: traefik
   tls:

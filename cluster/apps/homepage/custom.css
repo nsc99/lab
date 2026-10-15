@@ -1,0 +1,121 @@
+/* One static photograph and compact glass cards; no decorative scripts. */
+:root {
+  color-scheme: dark;
+  --lab-ink: #f6f0ec;
+  --lab-muted: #c4b8b8;
+  --lab-accent: #f3ba9d;
+  --lab-line: #ffffff24;
+}
+html, body, #__next, #page_wrapper, #inner_wrapper {
+  background: transparent !important;
+  color: var(--lab-ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+html { background: #171318 !important; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: -8px;
+  z-index: -1;
+  background: linear-gradient(#14101855, #14101899), url("/background.jpeg") center / cover no-repeat;
+  filter: blur(3px);
+  pointer-events: none;
+}
+#inner_wrapper > .container {
+  max-width: 1120px;
+  padding: clamp(32px, 12vh, 120px) 28px 24px;
+}
+#information-widgets { display: none; }
+#inner_wrapper > .container > div:has(> .services-group) {
+  margin: 0 !important;
+  gap: 0;
+}
+.services-group { padding: 0 !important; }
+.services-list {
+  gap: 10px !important;
+  margin: 0 !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+.service-card {
+  margin: 0 !important;
+  padding: 16px !important;
+  border: 1px solid var(--lab-line);
+  border-radius: 14px !important;
+  background: #211b26a6 !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 #ffffff0a, 0 4px 18px #00000018 !important;
+  transition: none;
+}
+.service-card:hover, .service-card:focus-within { border-color: #f3ba9d99; background: #302431bd !important; }
+.service-title { align-items: center; gap: 10px; }
+.service-icon {
+  width: 36px !important;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 7px;
+  background: #ffffff0a;
+  border: 1px solid #ffffff0c;
+  border-radius: 10px;
+}
+.service-icon img, .service-icon svg { width: 22px; height: 22px; }
+.service-name {
+  padding: 2px 0 !important;
+  color: var(--lab-ink) !important;
+  font-size: 14px !important;
+  font-weight: 500;
+  letter-spacing: -.02em;
+}
+.service-description {
+  margin-top: 4px;
+  color: var(--lab-muted) !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0;
+}
+/* Preserve the full-card link and the native health button above it. */
+a.service-title-text::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+.service-card:has(a:focus-visible) { outline: 2px solid var(--lab-accent); outline-offset: -2px; }
+.service-card a:focus-visible { outline: none; }
+.service-tags { top: 2px !important; right: 2px !important; }
+.k8s-status { padding: 8px !important; background: transparent !important; }
+.k8s-status > div { width: 5px; height: 5px; }
+.service-stats {
+  pointer-events: none;
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px solid #ffffff16;
+  max-height: none !important;
+  transition: none !important;
+}
+.service-card > .service-container {
+  pointer-events: none;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid #ffffff16;
+}
+.service-block { margin: 0; padding: 0; background: transparent !important; animation: none !important; }
+.service-block + .service-block { border-left: 1px solid #ffffff16; }
+.service-block-value { color: var(--lab-ink); font-size: 13px !important; font-weight: 500 !important; }
+.service-block-label { color: var(--lab-muted); font-size: 9px !important; opacity: 1 !important; margin-top: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 3px; }
+#footer { margin: 16px 0 0; padding: 0 !important; }
+@media (max-width: 900px) {
+  .services-list { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 640px) {
+  #inner_wrapper > .container { padding: 24px 14px; }
+  .services-list { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
+  .service-card { padding: 14px 10px !important; }
+  .service-title { gap: 7px; }
+  .service-icon { width: 28px !important; height: 28px; padding: 5px; border-radius: 8px; }
+  .service-icon img, .service-icon svg { width: 18px; height: 18px; }
+  .service-name { font-size: 12px !important; }
+  .service-description { font-size: 10px !important; }
+}

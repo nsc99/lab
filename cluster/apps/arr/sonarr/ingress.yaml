@@ -6,6 +6,16 @@ metadata:
   namespace: arr
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Sonarr"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "sonarr.svg"
+    gethomepage.dev/description: "Series library"
+    gethomepage.dev/weight: "70"
+    gethomepage.dev/widget.type: "sonarr"
+    gethomepage.dev/widget.url: "https://sonarr.${EXTERNAL_DOMAIN}"
+    gethomepage.dev/widget.fields: '["series", "wanted", "queued"]'
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
 spec:
   ingressClassName: traefik
   tls:

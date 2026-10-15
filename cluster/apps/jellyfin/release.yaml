@@ -39,6 +39,12 @@ spec:
       className: 'traefik'
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/name: "Jellyfin"
+        gethomepage.dev/group: "Services"
+        gethomepage.dev/icon: "jellyfin.svg"
+        gethomepage.dev/description: "Watch and listen"
+        gethomepage.dev/weight: "10"
         traefik.ingress.kubernetes.io/router.entrypoints: websecure,public
       hosts:
         - host: jellyfin.${EXTERNAL_DOMAIN}

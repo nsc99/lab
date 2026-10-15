@@ -36,6 +36,12 @@ spec:
       className: traefik
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/name: "Home Assistant"
+        gethomepage.dev/group: "Services"
+        gethomepage.dev/icon: "home-assistant.svg"
+        gethomepage.dev/description: "Home automation"
+        gethomepage.dev/weight: "40"
       hosts:
         - host: home.${EXTERNAL_DOMAIN}
           paths:

@@ -6,6 +6,16 @@ metadata:
   namespace: arr
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Bazarr"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "bazarr.svg"
+    gethomepage.dev/description: "Subtitles"
+    gethomepage.dev/weight: "90"
+    gethomepage.dev/widget.type: "bazarr"
+    gethomepage.dev/widget.url: "https://bazarr.${EXTERNAL_DOMAIN}"
+    gethomepage.dev/widget.fields: '["missingEpisodes", "missingMovies"]'
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
 spec:
   ingressClassName: traefik
   tls:

@@ -6,6 +6,16 @@ metadata:
   namespace: arr
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Radarr"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "radarr.svg"
+    gethomepage.dev/description: "Movie library"
+    gethomepage.dev/weight: "80"
+    gethomepage.dev/widget.type: "radarr"
+    gethomepage.dev/widget.url: "https://radarr.${EXTERNAL_DOMAIN}"
+    gethomepage.dev/widget.fields: '["movies", "wanted", "queued"]'
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
 spec:
   ingressClassName: traefik
   tls:

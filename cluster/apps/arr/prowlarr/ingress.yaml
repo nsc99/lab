@@ -6,6 +6,16 @@ metadata:
   namespace: arr
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Prowlarr"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "prowlarr.svg"
+    gethomepage.dev/description: "Indexer management"
+    gethomepage.dev/weight: "100"
+    gethomepage.dev/widget.type: "prowlarr"
+    gethomepage.dev/widget.url: "https://prowlarr.${EXTERNAL_DOMAIN}"
+    gethomepage.dev/widget.fields: '["numberOfQueries", "numberOfGrabs"]'
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
 spec:
   ingressClassName: traefik
   tls:
