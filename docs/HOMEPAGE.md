@@ -28,7 +28,8 @@ phase, not a successful application health probe.
 
 Homepage defaults to selecting `app.kubernetes.io/name=<ingress name>`.
 Set `gethomepage.dev/pod-selector` on an Ingress when its pods use different
-labels (Seerr, Grafana, Mokuro Bunko and gluetun do). Do not put API credentials
+labels (Seerr, Grafana, Mokuro Bunko and gluetun do). Paperless uses the
+default `app.kubernetes.io/name=paperless` selector. Do not put API credentials
 in Ingress annotations. Native service widgets also show:
 
 - Sonarr: series, missing episodes and queue count.
@@ -62,24 +63,44 @@ handlers, DOM observers or clock timers. Homepage's own React/Next.js client
 remains. Native Kubernetes stats fetch on load and revalidate on focus or
 reconnection, without a custom polling loop.
 
-`custom.js` only registers `/sw.js` after page load. The service worker caches
-the self-contained `offline.html` page (HTML/CSS, no JavaScript or external
-assets). If the lab is unreachable, returns an HTTP error, or takes longer
-than 1.5 seconds to respond, the browser displays "Not connected to the lab"
-with a retry link and a normal web-search form. It does not cache dashboard
-HTML, service data, API responses or credentials. The private route's 404
-through Traefik's public entrypoint also shows the disconnected page.
-Homepage's immutable
-JavaScript/CSS assets continue using the browser's normal HTTP cache.
+`custom.js` only registers `/sw.js` after page load. The worker saves successful
+JSON responses from app widgets and Kubernetes CPU/memory endpoints in the
+browser's `homepage-stats` cache for 60 seconds. Repeat visits read those values
+locally without a network request. After expiry, the saved response is returned
+immediately and one background request refreshes it; the next native widget
+fetch sees the updated value. Last known values can be older after an idle
+period or while an app is unavailable. Pod status remains live. HTML dashboard
+pages, configuration, auth and non-GET actions are not cached. HTTP errors,
+non-JSON responses, JSON errors and `no-store` responses are never saved.
+Authorization-header requests bypass stats caching.
 
-Offline support needs one completed online visit to the exact start-page URL
-over HTTPS, in a normal browser profile. `http://localhost:3000` also works for
-testing because browsers treat localhost as a secure origin. Browser cache
-clearing/eviction removes the saved page; it cannot work on a first-ever offline
-visit. After reconnecting, "Try again" loads the current dashboard. When editing
-`offline.html`, update the cache suffix in `sw.js` to the first 12 characters
-of its SHA256 (`shasum -a 256 cluster/apps/homepage/offline.html`). Old offline
-caches are removed when the updated worker activates.
+This stores private app API responses in the browser profile, including any
+metadata native widgets return, not only the displayed counts. API credentials
+are stripped by Homepage before browser data is served. No credentials are
+cached. Worker updates clear the stats cache. There is no proxy sidecar, custom
+page script, polling loop or timer for this cache.
+
+The separate offline cache contains `offline.html` and the supplied photograph.
+The disconnected page uses the same dark glass surface and blurred photo as
+the dashboard, with a normal retry link and no JavaScript or external assets.
+If the lab is unreachable, returns an HTTP error (including the private route's
+404 through the public entrypoint), or takes longer than 1.5 seconds to respond,
+that page appears. The saved photo also serves normal dashboard visits locally.
+Homepage's immutable JavaScript/CSS assets use the normal browser HTTP cache.
+
+Use HTTPS and a normal browser profile. `http://localhost:3000` also works as a
+secure origin for testing. The first online visit installs the worker and saves
+the offline resources; the next visit under its control warms the stats cache.
+Browser cache clearing/eviction removes saved data, so a first-ever offline
+visit cannot work. When changing the offline page or photo, set `CACHE` in
+`sw.js` to `homepage-offline-` followed by the first 12 characters of their
+combined SHA256:
+
+```sh
+cat cluster/apps/homepage/offline.html cluster/apps/homepage/background.asset | shasum -a 256
+```
+
+Old offline caches are removed when the updated worker activates.
 Flux substitutes `${EXTERNAL_DOMAIN}` in Ingress hosts and the allowed Host
 header. Kustomize generates
 a ConfigMap with a content hash so configuration changes roll the Deployment.
