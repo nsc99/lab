@@ -1,0 +1,14 @@
+---
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: home-lan
+spec:
+  hostname: home-lan
+  replicas: 1
+  tags:
+    - tag:k8s-subnet-router
+  exitNode: false
+  subnetRouter:
+    advertiseRoutes:
+      - 192.168.178.0/24
