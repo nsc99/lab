@@ -4,9 +4,14 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - anki-sync.yaml
   - vpn-endpoint.yaml
   - ntfy.yaml
 images:
+  - name: python
+    newName: docker.io/library/python
+    # renovate: datasource=docker depName=python
+    newTag: 3.14.8-alpine
   - name: ntfy
     newName: binwiederhier/ntfy
     # renovate: datasource=docker depName=binwiederhier/ntfy
@@ -16,6 +21,12 @@ images:
     # renovate: datasource=docker depName=lscr.io/linuxserver/wireguard versioning=regex:^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-r(?<build>\d+)-ls(?<revision>\d+)$
     newTag: 1.0.20260223-r0-ls125
 configMapGenerator:
+  - name: anki-sync
+    namespace: local-fixtures
+    files:
+      - anki-sync.py
+    options:
+      disableNameSuffixHash: true
   # Mounted into qBittorrent's /custom-cont-init.d by the apps patch.
   - name: qbittorrent-init
     namespace: gluetun

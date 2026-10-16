@@ -1,0 +1,8 @@
+- Study:
+    - Anki:
+        widget:
+          type: iframe
+          src: /anki-study.html
+          classes: h-60
+          referrerPolicy: same-origin
+          loadingStrategy: eager

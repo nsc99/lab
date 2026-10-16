@@ -96,6 +96,18 @@ spec:
               mountPath: /app/config/logs
             # Mount individual public files; keep Homepage's bundled assets.
             - name: config
+              mountPath: /app/public/anki-study.html
+              subPath: anki-study.html
+              readOnly: true
+            - name: config
+              mountPath: /app/public/anki-study.css
+              subPath: anki-study.css
+              readOnly: true
+            - name: config
+              mountPath: /app/public/anki-study.mjs
+              subPath: anki-study.mjs
+              readOnly: true
+            - name: config
               mountPath: /app/public/sw.js
               subPath: sw.js
               readOnly: true

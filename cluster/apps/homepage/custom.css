@@ -106,6 +106,17 @@ a.service-title-text::before {
 .service-block-label { color: var(--lab-muted); font-size: 9px !important; opacity: 1 !important; margin-top: 2px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 3px; }
 #footer { margin: 16px 0 0; padding: 0 !important; }
+/* The study panel uses a native iframe widget in its own full-width group. */
+.services-group:has(iframe[src="/anki-study.html"]) { margin-bottom: 10px; }
+.services-list:has(iframe[src="/anki-study.html"]) { grid-template-columns: minmax(0, 1fr) !important; }
+.service-card:has(iframe[src="/anki-study.html"]) > .service-title { display: none; }
+.service-card:has(iframe[src="/anki-study.html"]) > .service-container {
+  pointer-events: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+iframe[src="/anki-study.html"] { display: block; height: clamp(210px, 25vw, 250px); color-scheme: dark; }
 @media (max-width: 900px) {
   .services-list { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }

@@ -6,6 +6,32 @@ metadata:
   namespace: flux-system
 spec:
   patches:
+    # Explicit synthetic credentials override envFrom, so local Anker never
+    # connects to the real Anki account. PostgreSQL is local already.
+    - target:
+        kind: Deployment
+        name: anker
+        namespace: anker
+      patch: |-
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: anker
+          namespace: anker
+        spec:
+          template:
+            spec:
+              containers:
+                - name: anker
+                  env:
+                    - name: ANKER_SYNC_URL
+                      value: http://anki-sync.local-fixtures.svc.cluster.local:8080
+                    - name: ANKER_USERNAME
+                      value: demo
+                    - name: ANKER_PASSWORD
+                      value: demo
+                    - name: ANKER_SYNC_INTERVAL
+                      value: 1m
     # A second peer with prod's Mullvad WireGuard key would break prod's
     # tunnel, so gluetun connects to a local WireGuard server instead
     # (local/fixtures/vpn-endpoint.yaml) as a `custom` provider. The gluetun

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: anker
+spec:
+  selector:
+    app.kubernetes.io/name: anker
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

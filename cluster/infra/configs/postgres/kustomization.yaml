@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - secret.yaml
+  - anker-secret.yaml
   - cluster.yaml
   - databases.yaml
   - backup.yaml

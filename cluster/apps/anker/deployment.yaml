@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: anker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: anker
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: anker
+          # v0.0.1 release manifest, verified from its successful publish job.
+          image: ghcr.io/nsc99/anker:v0.0.1@sha256:79729d1274124abddf8266417db42264a42e644d0e3c85015f7fdefc19b3f871
+          envFrom:
+            - secretRef:
+                name: anker
+          env:
+            - name: ANKER_LISTEN
+              value: 0.0.0.0:8080
+            - name: ANKER_TIMEZONE
+              value: Europe/Berlin
+            - name: ANKER_SYNC_INTERVAL
+              value: 15m
+            - name: ANKER_SYNC_TIMEOUT
+              value: 5m
+            - name: ANKER_STALE_AFTER
+              value: 30m
+          ports:
+            - name: http
+              containerPort: 8080
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          # Keep the last good snapshot reachable after a failed sync.
+          readinessProbe:
+            httpGet:
+              path: /stats
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 2Gi
