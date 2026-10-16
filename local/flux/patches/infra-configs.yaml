@@ -37,6 +37,18 @@ spec:
         metadata:
           name: grafana-alerting
     # Tailscale CRs; the operator is not installed locally.
+    # target: also works during sync master, before the Connector exists.
+    # Never register a local subnet router with the production tailnet.
+    - target:
+        group: tailscale.com
+        kind: Connector
+        name: home-lan
+      patch: |-
+        $patch: delete
+        apiVersion: tailscale.com/v1alpha1
+        kind: Connector
+        metadata:
+          name: home-lan
     - patch: |-
         $patch: delete
         apiVersion: tailscale.com/v1alpha1

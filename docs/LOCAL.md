@@ -89,8 +89,11 @@ Everything that would touch something shared with prod, or that the single
 node cannot satisfy, is patched in `local/flux/patches/` (the only place for
 such overrides):
 
-- **Tailscale**: operator, its OAuth secret, the ProxyGroup and `traefik-public`
-  are removed; they would join the real tailnet.
+- **Tailscale**: operator, its OAuth secret, the ProxyGroup, the `home-lan`
+  subnet-router Connector and `traefik-public` are removed; they would join
+  the real tailnet. The Connector deletion uses a target so `sync master`
+  also works before that resource exists. Local sync verifies this exclusion,
+  not tailnet registration or remote LAN connectivity; see [Tailscale](TAILSCALE.md).
 - **cert-manager**: ClusterIssuers are self-signed and the Cloudflare token is
   removed, so no ACME requests or DNS-01 records.
 - **gluetun**: connects to a local WireGuard server (see [Fixtures](#fixtures))
