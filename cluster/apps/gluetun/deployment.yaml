@@ -45,6 +45,9 @@ spec:
               value: "wireguard"
             - name: "VPN_SERVICE_PROVIDER"
               value: "mullvad"
+            # qBittorrent binds to it (qbittorrent-interface.sh).
+            - name: "VPN_INTERFACE"
+              value: "tun0"
             - name: WIREGUARD_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
@@ -62,6 +65,9 @@ spec:
                   key: server_cities
             - name: FIREWALL_OUTBOUND_SUBNETS
               value: "10.42.0.0/16,10.43.0.0/16"
+            # Unauthenticated: anyone reaching it could stop the VPN.
+            - name: HTTP_CONTROL_SERVER_ADDRESS
+              value: "127.0.0.1:8000"
 
       containers:
         - name: "qbittorrent"
@@ -100,6 +106,9 @@ spec:
               name: "qbittorrent-config"
             - mountPath: "/media"
               name: "qbittorrent-media"
+            - mountPath: "/custom-cont-init.d"
+              name: "qbittorrent-init"
+              readOnly: true
       
       volumes:
         - name: "qbittorrent-config"
@@ -109,3 +118,10 @@ spec:
           nfs:
             server: ${NFS_HOST}
             path: /tank/media
+        # Projected so local/flux/patches can add its own init script.
+        - name: "qbittorrent-init"
+          projected:
+            defaultMode: 0755
+            sources:
+              - configMap:
+                  name: qbittorrent-interface

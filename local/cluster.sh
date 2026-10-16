@@ -456,10 +456,11 @@ wait_ntfy() {
   done
 }
 
-# qBittorrent behind gluetun: traffic leaves through the tunnel, nothing gets
-# out while the tunnel is down (kill switch) and it recovers, the WebUI takes
-# Sonarr's login on its ingress, and Sonarr's and Radarr's download client
-# tests pass.
+# qBittorrent behind gluetun: traffic leaves through the tunnel, the pod is
+# isolated, nothing gets out while the tunnel is down (kill switch) and it
+# recovers, qBittorrent stays bound to tun0 even with gluetun's firewall open,
+# the WebUI takes Sonarr's login on its ingress, and Sonarr's and Radarr's
+# download client tests pass.
 verify_gluetun() {
   local domain size=2000000 before after deadline
   domain=$(kubectl -n flux-system get configmap cluster-settings -o jsonpath='{.data.EXTERNAL_DOMAIN}')
@@ -472,6 +473,17 @@ verify_gluetun() {
     die "qbittorrent has no internet access through gluetun"
   after=$(endpoint_tx)
   ((after - before >= size)) || die "download worked but only $((after - before)) bytes passed the VPN endpoint (leak?)"
+
+  # The NetworkPolicy lets only traefik in and nothing but WireGuard out;
+  # gluetun's control server (no auth) only listens on loopback.
+  log "gluetun: pod isolated, control server on loopback only"
+  local pod traefik
+  pod=$(kubectl -n gluetun get pod -l name=gluetun -o jsonpath='{.items[0].status.podIP}')
+  traefik=$(kubectl -n kube-system get service traefik -o jsonpath='{.spec.clusterIP}')
+  ! endpoint curl -sS -m 5 -o /dev/null "http://$pod:8080/" 2>/dev/null || die "qbittorrent's WebUI is reachable from other pods"
+  ! qbittorrent curl -sSk -m 5 -o /dev/null "https://$traefik/" 2>/dev/null || die "qbittorrent reaches cluster services outside the tunnel"
+  qbittorrent curl -fsS -m 5 -o /dev/null http://127.0.0.1:8000/v1/vpn/status || die "gluetun's control server does not answer on 127.0.0.1:8000"
+  [[ $(qbittorrent netstat -tln | awk '$4 ~ /:8000$/ {print $4}') == 127.0.0.1:8000 ]] || die "gluetun's control server listens beyond loopback"
 
   # gluetun notices a dead tunnel after ~3 min (periodic healthcheck) and then
   # restarts the VPN, which rebuilds routes and firewall: the moment a leak
@@ -501,6 +513,53 @@ verify_gluetun() {
     ((SECONDS < deadline)) || die "gluetun did not recover within 300s"
     sleep 5
   done
+
+  # The VPN restarts recreated tun0; libtorrent has to listen on it again.
+  log "qbittorrent: listens only on tun0 again"
+  local tun_ip listening
+  tun_ip=$(gluetun ip -4 -o addr show dev tun0 | awk '{sub("/.*", "", $4); print $4}')
+  deadline=$((SECONDS + 60))
+  until listening=$(qbittorrent netstat -tuln | awk '$4 ~ /:6881$/ {print $4}' | sort -u) && [[ $listening == "$tun_ip:6881" ]]; do
+    ((SECONDS < deadline)) || die "qbittorrent listens on ${listening//$'\n'/ } instead of only $tun_ip:6881"
+    sleep 5
+  done
+
+  # gluetun v3.41.3 opens its firewall (all ACCEPT) and exits when enabling it
+  # fails, while qBittorrent keeps running. Rebuild that state (VPN stopped,
+  # rules flushed) and count qBittorrent's (uid 2000) packets leaving eth0 for
+  # the internet while it reannounces a torrent, in the pod, before the
+  # NetworkPolicy drops them. DNS is left out: the resolver is not bound to
+  # tun0, the NetworkPolicy blocks it.
+  log "qbittorrent: nothing leaves eth0 with the VPN stopped and gluetun's firewall open (~1 min)"
+  local hash leaked
+  hash=$(od -An -tx1 -N20 /dev/urandom | tr -d ' \n')
+  qbt_api torrents/add --data-urlencode "urls=magnet:?xt=urn:btih:$hash&tr=http://1.1.1.1/announce" >/dev/null
+  trap 'qbt_api torrents/delete --data "hashes=$hash&deleteFiles=true" >/dev/null 2>&1 || true
+    kubectl -n gluetun rollout restart deployment/gluetun >/dev/null; lease_exit' EXIT
+  qbittorrent curl -fsS -X PUT -H 'Content-Type: application/json' -d '{"status":"stopped"}' \
+    http://127.0.0.1:8000/v1/vpn/status >/dev/null
+  deadline=$((SECONDS + 30))
+  while gluetun ip link show tun0 >/dev/null 2>&1; do
+    ((SECONDS < deadline)) || die "tun0 still exists 30s after stopping the VPN"
+    sleep 1
+  done
+  # shellcheck disable=SC2016
+  gluetun sh -c 'iptables -F; for c in INPUT FORWARD OUTPUT; do iptables -P "$c" ACCEPT; done
+    iptables -I OUTPUT -o eth0 ! -d 10.42.0.0/16 -m owner --uid-owner 2000 ! -p udp
+    iptables -I OUTPUT -o eth0 ! -d 10.42.0.0/16 -m owner --uid-owner 2000 -p udp ! --dport 53'
+  for _ in $(seq 12); do
+    qbt_api torrents/reannounce --data "hashes=$hash" >/dev/null
+    sleep 5
+  done
+  leaked=$(eth0_leaks)
+  ((leaked == 0)) || die "qbittorrent sent $leaked packets through eth0 with the VPN stopped"
+  # Without the binding the same user gets out, and the counter sees it.
+  qbittorrent s6-setuidgid abc curl -sS -m 5 -o /dev/null https://1.1.1.1/ 2>/dev/null || true
+  (($(eth0_leaks) > 0)) || die "the leak counter missed an unbound connection"
+  qbt_api torrents/delete --data "hashes=$hash&deleteFiles=true" >/dev/null
+  kubectl -n gluetun rollout restart deployment/gluetun >/dev/null
+  trap lease_exit EXIT
+  kubectl -n gluetun rollout status deployment/gluetun --timeout=300s >/dev/null || die "gluetun did not come back after the restart"
 
   log "qbittorrent: WebUI login on https://q.$domain"
   local out
@@ -546,6 +605,20 @@ verify_gluetun() {
 endpoint() { kubectl -n local-fixtures exec deployment/vpn-endpoint -c wireguard -- "$@"; }
 endpoint_stdin() { kubectl -n local-fixtures exec -i deployment/vpn-endpoint -c wireguard -- "$@"; }
 qbittorrent() { kubectl -n gluetun exec deployment/gluetun -c qbittorrent -- "$@"; }
+gluetun() { kubectl -n gluetun exec deployment/gluetun -c gluetun -- "$@"; }
+# qBittorrent's WebAPI from inside the pod: qbt_api <path> [curl args...]. The
+# login from the gluetun Secret goes in on stdin.
+qbt_api() {
+  # shellcheck disable=SC2016
+  kubectl -n gluetun get secret gluetun -o json |
+    jq -r '.data | (.qbittorrent_username, .qbittorrent_password) | @base64d' |
+    kubectl -n gluetun exec -i deployment/gluetun -c qbittorrent -- sh -c 'read -r u; read -r p; j=$(mktemp)
+      curl -fsS -c "$j" --data-urlencode "username=$u" --data-urlencode "password=$p" \
+        http://127.0.0.1:8080/api/v2/auth/login >/dev/null && curl -fsS -b "$j" "http://127.0.0.1:8080/api/v2/$0" "$@"
+      r=$?; rm -f "$j"; exit $r' "$@"
+}
+# Packets counted by verify_gluetun's uid 2000 rules in gluetun's OUTPUT chain.
+eth0_leaks() { gluetun iptables -L OUTPUT -v -x -n | awk '/owner UID match 2000/ {n += $1} END {print n + 0}'; }
 # Bytes the VPN endpoint sent to gluetun.
 endpoint_tx() { endpoint wg show wg0 transfer | awk '{print $3}'; }
 
