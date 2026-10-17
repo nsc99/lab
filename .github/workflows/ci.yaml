@@ -23,6 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: cachix/install-nix-action@v31.11.1
+      - name: validate study calendar
+        run: nix shell --inputs-from ./nix nixpkgs#nodejs --command node --test local/anki-study.test.mjs
       - name: validate flux kustomizations
         run: |
           nix shell --inputs-from ./nix nixpkgs#kustomize nixpkgs#kubeconform --command bash -euo pipefail -c '

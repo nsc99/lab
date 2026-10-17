@@ -12,12 +12,20 @@ resources:
 configMapGenerator:
   # The name hash rolls the Deployment when configuration changes.
   - name: homepage-config
+    options:
+      annotations:
+        # Static assets contain JavaScript template expressions, not Flux vars.
+        kustomize.toolkit.fluxcd.io/substitute: disabled
     files:
       - settings.yaml
       - kubernetes.yaml
       - widgets.yaml
+      - services.yaml
       - custom.css
       - custom.js
+      - anki-study.html
+      - anki-study.css
+      - anki-study.mjs
       - offline.html
       - sw.js
       # Flux excludes JPEG filenames from source artifacts. Preserve the JPEG
@@ -26,5 +34,4 @@ configMapGenerator:
     literals:
       - 'bookmarks.yaml=[]'
       - 'docker.yaml={}'
-      - 'services.yaml=[]'
       - 'proxmox.yaml={}'

@@ -108,6 +108,10 @@ such overrides):
   ingress URLs, so TLS validation is relaxed: `CERT_VALIDATION=disabledForLocalAddresses`
   for Sonarr/Prowlarr, `CURL_INSECURE` for the host-config step and
   `NODE_TLS_REJECT_UNAUTHORIZED=0` for Configarr.
+- **Anker**: sync URL, username and password are explicitly overridden with a
+  synthetic local Anki server. The exporter still exercises the real download
+  protocol and shared local PostgreSQL storage, without contacting the real
+  account.
 
 If you add something that talks to an external account with prod credentials,
 add an override there in the same change.
@@ -126,6 +130,10 @@ syncs.
 - **ntfy** (ns `local-fixtures`): stands in for ntfy.sh and healthchecks.io.
   The local `grafana-alerting` Secret points Grafana's contact points at its
   `alerts` and `deadman` topics instead of the phone and prod's dead-man check.
+- **anki-sync** (ns `local-fixtures`): serves a generated SQLite collection
+  using Anki's compressed login, metadata and download protocol. Its yearly
+  history includes missed study days and no reviews today, exercising the red
+  zero-time display. It uses only the synthetic `demo` account.
 
 `local/cluster.sh verify` checks, and fails on the first problem:
 

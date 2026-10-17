@@ -48,6 +48,39 @@ are copied. The other tiles retain pod/resource stats because their app API
 credentials are not provisioned here. Detailed queues and media titles are
 not displayed.
 
+The full-width Anki panel above the service grid uses
+[Anker](https://github.com/nsc99/anker), deployed in `cluster/apps/anker/`.
+It shows 365 study days as a Sunday-first heat map, shaded by review count,
+with dates and counts on hover. Today's study time is shown in minutes
+(hours and minutes for longer sessions); **0 min** is bold red. Positive study
+time below one minute reads `<1 min` and uses the normal color.
+The collection's study-day label, configured timezone (`Europe/Berlin`), and
+rollover hour come from Anker, so the calendar and today's time agree with
+Anki's day boundaries, including daylight saving changes.
+
+The panel is a native iframe widget configured in `services.yaml`. Its local
+HTML, CSS and module are mounted from the same ConfigMap as the other public
+assets. The browser fetches `/anki/activity?days=365` on load, every minute
+while visible, and when returning to the tab. A private ingress on Homepage's
+host strips `/anki` and forwards only that exact read-only activity path to
+Anker. It uses Homepage's certificate from Traefik's shared certificate store;
+there is no public entrypoint or cross-origin browser access. This API path
+is outside the service worker's stats cache and Anker sends `no-store`.
+Today and the calendar come from one response. Last-known data is marked
+when sync fails or becomes stale; an unavailable first snapshot displays `—`,
+never a false red zero. If a browser refresh fails, the loaded calendar stays
+visible with an unavailable message.
+
+Anker uses the SOPS-encrypted sync configuration copied from the existing
+Anker project's `.env`. It stores review history in the shared PostgreSQL
+`anker` database; its separate `postgres-anker` role Secret and the connection
+URL must be kept in sync when rotating the database password. The database
+is included in nightly PostgreSQL backups. Temporary collection downloads
+use an ephemeral `/tmp` volume. Readiness checks `/stats` so a valid last-good
+snapshot remains reachable during a sync outage; `/healthz` checks liveness.
+The exporter is pinned to release `v0.0.1` and its multi-platform digest,
+verified against the successful release workflow and the public GHCR manifest.
+
 Shared configuration lives in `cluster/apps/homepage/`. `settings.yaml`
 controls the compact grid and permanently visible stats; `widgets.yaml` is
 empty, with no heading or search bar. `custom.css` provides dark glass cards,
@@ -59,7 +92,8 @@ The native application link covers each card, including its padding, stats
 and empty space. The health dot remains a native stats button.
 
 The page uses system fonts and has no custom animation loops, pointer
-handlers, DOM observers or clock timers. Homepage's own React/Next.js client
+handlers, DOM observers or clock timers. The study iframe alone has a
+one-minute data refresh timer. Homepage's own React/Next.js client
 remains. Native Kubernetes stats fetch on load and revalidate on focus or
 reconnection, without a custom polling loop.
 
@@ -104,6 +138,9 @@ Old offline caches are removed when the updated worker activates.
 Flux substitutes `${EXTERNAL_DOMAIN}` in Ingress hosts and the allowed Host
 header. Kustomize generates
 a ConfigMap with a content hash so configuration changes roll the Deployment.
+That ConfigMap disables Flux substitution to preserve JavaScript template
+expressions in the study module; domain variables remain in the Ingress and
+Deployment resources.
 The startup hook regenerates Homepage's bundled demo page from this config
 before the pod becomes ready. Empty integration config files are provided even
 for unused integrations because Homepage otherwise tries to create them on the
@@ -111,8 +148,9 @@ read-only mount when serving the dashboard.
 
 `kubernetes.yaml` enables in-cluster Ingress discovery. The dedicated service
 account can list Ingresses, pods and pod metrics across namespaces; it cannot
-read Secrets or logs, execute commands, or modify cluster resources. `services.yaml` is generated as
-an empty list so Homepage has the file it expects without a duplicate inventory.
+read Secrets or logs, execute commands, or modify cluster resources.
+`services.yaml` contains only the study panel; applications still come from
+Ingress discovery without a duplicate inventory.
 
 The dashboard needs no database or PVC. Logs use ephemeral storage. Service
 links open each application's own login; the configured widgets query app
@@ -126,7 +164,14 @@ Renovate's existing Kubernetes manager tracks the image.
 
 For local testing, use the workflow in [LOCAL.md](LOCAL.md). The dashboard is
 available through the local ingress as `https://lab.lab.test`, with the
-local self-signed certificate. No Homepage-specific overrides are needed.
+local self-signed certificate. Local Anker overrides the real account with
+synthetic credentials and a local sync fixture; it never contacts the real
+sync server. The fixture includes missed days and zero study time today.
+The calendar regression checks run in CI and can be run with:
+
+```sh
+nix shell --inputs-from ./nix nixpkgs#nodejs --command node --test local/anki-study.test.mjs
+```
 
 For a browser preview at `http://localhost:3000`, run the reconnecting forward
 in a detached tmux session, independent of the agent or terminal lifetime:
@@ -135,6 +180,13 @@ in a detached tmux session, independent of the agent or terminal lifetime:
 tmux new-session -d -s lab-homepage-preview -c "$PWD" 'bash local/homepage-preview.sh'
 ```
 
-It forwards the Service and reconnects after a pod replacement. Inspect it with
+It tunnels directly to the Homepage and Anker pods through Lima's SSH
+connection. A loopback-only Python proxy serves the dashboard and
+`/anki/activity` under the same origin. Established connections survive
+Kubernetes API and kube-proxy restarts; the script checks for replaced pods
+every 15 seconds and reconnects. Inspect it with
 `tmux attach -t lab-homepage-preview`; stop it with
 `tmux kill-session -t lab-homepage-preview`.
+
+The preview serves custom CSS and study panel assets directly from the current
+worktree, so refresh the browser to review edits without waiting for a rollout.

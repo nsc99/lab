@@ -34,7 +34,7 @@ data:
     umask 077
     stamp=$(date -u +%Y%m%dT%H%M%SZ)
     # <db>:<owner>; the owner's password comes from PGPASSWORD_<OWNER>.
-    for entry in sonarr-main:sonarr sonarr-log:sonarr prowlarr-main:prowlarr prowlarr-log:prowlarr bazarr:bazarr radarr-main:radarr radarr-log:radarr seerr:seerr paperless:paperless; do
+    for entry in sonarr-main:sonarr sonarr-log:sonarr prowlarr-main:prowlarr prowlarr-log:prowlarr bazarr:bazarr radarr-main:radarr radarr-log:radarr seerr:seerr paperless:paperless anker:anker; do
       db=${entry%%:*}
       owner=${entry#*:}
       pw_var="PGPASSWORD_${owner^^}"
@@ -80,6 +80,11 @@ spec:
               image: ghcr.io/cloudnative-pg/postgresql:18.6-minimal-trixie
               command: [/bin/bash, /scripts/backup.sh]
               env:
+                - name: PGPASSWORD_ANKER
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-anker
+                      key: password
                 - name: PGPASSWORD_SONARR
                   valueFrom:
                     secretKeyRef:

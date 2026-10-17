@@ -64,6 +64,11 @@ spec:
       effective_io_concurrency: "200"
   managed:
     roles:
+      - name: anker
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-anker
       - name: sonarr
         ensure: present
         login: true

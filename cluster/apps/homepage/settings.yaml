@@ -15,6 +15,10 @@ useEqualHeights: true
 showStats: true
 blockStyle: refined
 layout:
+  Study:
+    header: false
+    style: row
+    columns: 1
   Services:
     header: false
     style: row

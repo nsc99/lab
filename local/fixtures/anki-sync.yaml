@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anki-sync
+  namespace: local-fixtures
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: anki-sync
+  template:
+    metadata:
+      labels:
+        app: anki-sync
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: anki-sync
+          image: python
+          command: [python, /fixtures/anki-sync.py]
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          volumeMounts:
+            - name: fixture
+              mountPath: /fixtures
+              readOnly: true
+      volumes:
+        - name: fixture
+          configMap:
+            name: anki-sync
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: anki-sync
+  namespace: local-fixtures
+spec:
+  selector:
+    app: anki-sync
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
