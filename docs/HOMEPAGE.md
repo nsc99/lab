@@ -60,16 +60,24 @@ Anki's day boundaries, including daylight saving changes.
 
 The panel is a native iframe widget configured in `services.yaml`. Its local
 HTML, CSS and module are mounted from the same ConfigMap as the other public
-assets. The browser fetches `/anki/activity?days=365` on load, every minute
-while visible, and when returning to the tab. A private ingress on Homepage's
-host strips `/anki` and forwards only that exact read-only activity path to
-Anker. It uses Homepage's certificate from Traefik's shared certificate store;
+assets. The panel immediately renders its last successful response from
+`localStorage`, then fetches `/anki/activity?days=365` in the background on
+load, every minute while visible, and when returning to the tab. A private
+ingress on Homepage's host strips `/anki` and forwards only that exact read-only
+activity path to Anker. It uses Homepage's certificate from Traefik's shared certificate store;
 there is no public entrypoint or cross-origin browser access. This API path
-is outside the service worker's stats cache and Anker sends `no-store`.
+is outside the service worker's stats cache and Anker sends `no-store`; the
+panel explicitly saves validated activity JSON under `homepage-anki-activity`.
+This keeps private review counts and study times in the browser profile until
+site data is cleared or a successful response replaces them. Cached data is
+marked as last known until a live response arrives. After the collection's
+day rollover, an older snapshot still shows the calendar but displays `—`
+for today's time instead of yesterday's value.
 Today and the calendar come from one response. Last-known data is marked
 when sync fails or becomes stale; an unavailable first snapshot displays `—`,
 never a false red zero. If a browser refresh fails, the loaded calendar stays
-visible with an unavailable message.
+visible with an unavailable message, including across page reloads. Invalid
+saved data is ignored; unavailable browser storage does not block live data.
 
 Anker uses the SOPS-encrypted sync configuration copied from the existing
 Anker project's `.env`. It stores review history in the shared PostgreSQL

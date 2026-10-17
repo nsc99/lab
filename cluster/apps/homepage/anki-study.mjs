@@ -1,5 +1,6 @@
 const NS = "http://www.w3.org/2000/svg";
 const DAY = 86_400_000;
+const ACTIVITY_CACHE = "homepage-anki-activity";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function duration(seconds) {
@@ -44,11 +45,32 @@ function svgElement(tag, attributes, text) {
   return element;
 }
 
-export function renderActivity(activity) {
+export function studyDay(activity, now = new Date()) {
+  if (!Number.isInteger(activity.rollover_hour) || activity.rollover_hour < 0 || activity.rollover_hour > 23) {
+    throw new Error("Invalid rollover hour");
+  }
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en", {
+    timeZone: activity.timezone, year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", hourCycle: "h23",
+  }).formatToParts(now).map(({ type, value }) => [type, value]));
+  const date = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00Z`);
+  if (Number(parts.hour) < activity.rollover_hour) date.setUTCDate(date.getUTCDate() - 1);
+  return date.toISOString().slice(0, 10);
+}
+
+export function renderActivity(activity, { cached = false } = {}) {
   const model = calendarModel(activity);
+  if (typeof activity.timezone !== "string" || !activity.timezone ||
+      typeof activity.stale !== "boolean" || typeof activity.sync_ok !== "boolean" ||
+      !Number.isFinite(Date.parse(activity.last_successful_sync))) {
+    throw new Error("Invalid activity metadata");
+  }
+  const currentDay = studyDay(activity);
+  const isToday = activity.study_day === currentDay;
   const time = document.getElementById("study-time");
-  time.textContent = duration(model.today.study_time_seconds);
-  time.classList.toggle("zero", model.today.study_time_seconds === 0);
+  // A saved response from before rollover cannot tell us today's study time.
+  time.textContent = isToday ? duration(model.today.study_time_seconds) : "—";
+  time.classList.toggle("zero", isToday && model.today.study_time_seconds === 0);
   document.getElementById("summary").textContent = `${model.studied} days studied in the past year`;
   const svg = svgElement("svg", { viewBox: `0 0 ${32 + model.columns * 14} 116`, role: "img", "aria-labelledby": "grid-title" });
   svg.append(svgElement("title", { id: "grid-title" }, `Anki study activity: ${model.studied} of ${model.cells.length} days studied. Brighter green means more reviews.`));
@@ -65,7 +87,7 @@ export function renderActivity(activity) {
     const rect = svgElement("rect", {
       x, y: 18 + cell.row * 14, width: 11, height: 11, rx: 2,
       "data-level": cell.level, "data-date": cell.date,
-      class: cell.date === activity.study_day ? "today" : "",
+      class: cell.date === currentDay ? "today" : "",
     });
     rect.append(svgElement("title", {}, `${cell.date}: ${cell.reviews} reviews · ${duration(cell.study_time_seconds)}`));
     svg.append(rect);
@@ -76,17 +98,28 @@ export function renderActivity(activity) {
   if (firstRender) calendar.scrollLeft = calendar.scrollWidth;
   const status = document.getElementById("status");
   const synced = new Date(activity.last_successful_sync).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
-  const stale = activity.stale || !activity.sync_ok;
+  const stale = cached || !isToday || activity.stale || !activity.sync_ok;
   status.textContent = `${stale ? "Last known data · " : ""}Synced ${synced}`;
   status.classList.toggle("stale", stale);
   status.title = `Study day ${activity.study_day} · ${activity.timezone} · resets at ${String(activity.rollover_hour).padStart(2, "0")}:00`;
 }
 
-async function refresh() {
+export function restoreCachedActivity() {
+  try {
+    const activity = JSON.parse(localStorage.getItem(ACTIVITY_CACHE));
+    if (activity) renderActivity(activity, { cached: true });
+  } catch { /* Invalid or unavailable browser storage must not block live data. */ }
+}
+
+export async function refresh() {
   try {
     const response = await fetch("/anki/activity?days=365", { cache: "no-store", signal: AbortSignal.timeout(10_000) });
     if (!response.ok) throw new Error("Anker unavailable");
-    renderActivity(await response.json());
+    const activity = await response.json();
+    renderActivity(activity);
+    try {
+      localStorage.setItem(ACTIVITY_CACHE, JSON.stringify(activity));
+    } catch { /* The live panel also works when browser storage is unavailable. */ }
   } catch {
     // An unavailable snapshot is unknown, never a false zero-study warning.
     const status = document.getElementById("status");
@@ -98,6 +131,7 @@ async function refresh() {
 }
 
 if (typeof document !== "undefined") {
+  restoreCachedActivity();
   refresh();
   // Only the visible study panel polls; day rollover is calculated by Anker.
   setInterval(() => { if (!document.hidden) refresh(); }, 60_000);
