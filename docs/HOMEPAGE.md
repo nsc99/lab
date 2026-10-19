@@ -37,9 +37,12 @@ in Ingress annotations. Native service widgets also show:
 - Bazarr: missing episode/movie subtitles.
 - Prowlarr: query and grab counts.
 - qBittorrent: incomplete/completed counts and download/upload rates.
+- Jellyfin: total movies and episodes. Now-playing details, users and playback
+  controls are disabled.
+- Seerr: pending, processing and completed requests.
 
 Widget type, ingress URL and displayed fields live on each application's
-Ingress. Only environment placeholders appear there. The six approved
+Ingress. Only environment placeholders appear there. The arr
 credentials are copied from the existing arr Secret into the SOPS-encrypted
 `homepage/secret.yaml`, and injected as `HOMEPAGE_VAR_*` environment variables.
 Keep that encrypted copy in sync when rotating the app keys or qBittorrent
@@ -47,6 +50,45 @@ login, then restart Homepage to load the new values. No database passwords
 are copied. The other tiles retain pod/resource stats because their app API
 credentials are not provisioned here. Detailed queues and media titles are
 not displayed.
+
+Jellyfin's `JELLYFIN_API_KEY` and Seerr's `SEERR_API_KEY` are also stored in
+that Secret; the existing `envFrom` prefix exposes them to Homepage as
+`HOMEPAGE_VAR_JELLYFIN_API_KEY` and `HOMEPAGE_VAR_SEERR_API_KEY`. Jellyfin uses
+widget API version `2`, matching the deployed server; this is independent of
+the server's image tag. Its library counts cover the server's entire library.
+Seerr's fields count requests, not individual episodes, following Seerr's
+`/api/v1/request/count` API. Partially available requests remain processing;
+completed requests have reached Seerr's completed status.
+
+The initial Jellyfin credential reuses Seerr's existing Jellyfin API key.
+Keep that key active while Seerr uses it. Seerr's own API key is also shared
+with its other API clients.
+
+The pinned [native Jellyfin widget](https://github.com/gethomepage/homepage/blob/v2.5.0/src/widgets/jellyfin/component.jsx)
+has no aggregate active-stream field. Its now-playing mode displays media
+names, so it is disabled; active streams are not displayed. The
+[native Seerr widget](https://gethomepage.dev/widgets/services/seerr/) uses
+only its request-count endpoint for the selected fields.
+
+To provision or rotate these credentials:
+
+1. In Jellyfin's administration dashboard, open **Advanced > API Keys** and
+   create a key named **Homepage**. In Seerr, copy **Settings > General > API
+   Key** (regenerate it there when rotating).
+2. Use `sops cluster/apps/homepage/secret.yaml` to set `stringData.JELLYFIN_API_KEY`
+   and `stringData.SEERR_API_KEY`. Save the encrypted file. Keep the values out
+   of shell arguments, Ingress annotations, screenshots and commit messages.
+3. After Flux applies the Secret, restart the Homepage Deployment so it reads
+   the new environment. For production, the operator performs this step.
+4. Check the tiles against Jellyfin's library totals and Seerr's request
+   counts. Revoke an old dedicated Homepage key after the new one works. Before
+   revoking the initial shared Jellyfin key, update Seerr as well. Rotating
+   Seerr's own API key requires updating any other clients using it.
+
+Only count endpoints are requested by these widgets. The Jellyfin widget
+does not request sessions, and the Seerr widget does not request request lists
+or users. Their browser responses therefore contain aggregate counts, and
+Homepage strips the keys from browser configuration.
 
 The full-width Anki panel above the service grid uses
 [Anker](https://github.com/nsc99/anker), deployed in `cluster/apps/anker/`.
@@ -172,7 +214,30 @@ Renovate's existing Kubernetes manager tracks the image.
 
 For local testing, use the workflow in [LOCAL.md](LOCAL.md). The dashboard is
 available through the local ingress as `https://lab.lab.test`, with the
-local self-signed certificate. Local Anker overrides the real account with
+local self-signed certificate. Jellyfin and Seerr generate different API keys
+in their local storage. The Homepage patch in `local/flux/patches/apps.yaml`
+reads them from a separate `homepage-local-widget-credentials` Secret in the
+`homepage` namespace. Complete the local apps' setup, create a local Jellyfin
+API key and copy the local Seerr API key. Store each value in a temporary file
+with mode `600`, then seed the Secret without putting keys in shell arguments:
+
+```sh
+local/cluster.sh kubectl -n homepage create secret generic homepage-local-widget-credentials \
+  --from-file=JELLYFIN_API_KEY=/path/to/local-jellyfin-key \
+  --from-file=SEERR_API_KEY=/path/to/local-seerr-key
+local/cluster.sh kubectl -n homepage rollout restart deployment/homepage
+```
+
+Remove the temporary files afterwards. The local key references are optional
+so a fresh cluster can start before app setup; widgets need the keys to work.
+Verify `/api/services` retains each tile's `app`/`namespace` and contains no
+keys. Compare Homepage's Jellyfin `CountV2` proxy response to `/Items/Counts`,
+and its Seerr `request/count` response to `/api/v1/request/count`. Use generated
+placeholder media for nonzero library counts. Check rendered HTML and both
+widget responses for credentials and ensure all widget response values are
+numeric aggregates. Keep production read-only throughout.
+
+Local Anker overrides the real account with
 synthetic credentials and a local sync fixture; it never contacts the real
 sync server. The fixture includes missed days and zero study time today.
 The calendar regression checks run in CI and can be run with:
