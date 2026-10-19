@@ -70,6 +70,10 @@ spec:
         gethomepage.dev/description: "Media requests"
         gethomepage.dev/weight: "20"
         gethomepage.dev/pod-selector: "app.kubernetes.io/name=seerr-chart"
+        gethomepage.dev/widget.type: "seerr"
+        gethomepage.dev/widget.url: "https://seerr.${EXTERNAL_DOMAIN}"
+        gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_SEERR_API_KEY}}"
+        gethomepage.dev/widget.fields: '["pending", "processing", "completed"]'
         traefik.ingress.kubernetes.io/router.entrypoints: websecure,public
       hosts:
         - host: seerr.${EXTERNAL_DOMAIN}

@@ -6,6 +6,36 @@ metadata:
   namespace: flux-system
 spec:
   patches:
+    # These apps generate API keys in their local PVCs, independently of prod.
+    # Seed this Secret from the local apps before verifying Homepage widgets.
+    - target:
+        kind: Deployment
+        name: homepage
+        namespace: homepage
+      patch: |-
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: homepage
+          namespace: homepage
+        spec:
+          template:
+            spec:
+              containers:
+                - name: homepage
+                  env:
+                    - name: HOMEPAGE_VAR_JELLYFIN_API_KEY
+                      valueFrom:
+                        secretKeyRef:
+                          name: homepage-local-widget-credentials
+                          key: JELLYFIN_API_KEY
+                          optional: true
+                    - name: HOMEPAGE_VAR_SEERR_API_KEY
+                      valueFrom:
+                        secretKeyRef:
+                          name: homepage-local-widget-credentials
+                          key: SEERR_API_KEY
+                          optional: true
     # Explicit synthetic credentials override envFrom, so local Anker never
     # connects to the real Anki account. PostgreSQL is local already.
     - target:
