@@ -73,21 +73,22 @@ spec:
                           name: gluetun
                           key: wireguard_public_key
               # Prod's WebUI login was set by hand; a fresh local PVC needs it
-              # seeded (local/fixtures/qbittorrent-login.sh).
+              # seeded (local/fixtures/qbittorrent-login.sh), next to prod's
+              # init script.
               containers:
                 - name: qbittorrent
                   volumeMounts:
-                    - name: qbittorrent-init
-                      mountPath: /custom-cont-init.d
-                      readOnly: true
                     - name: qbittorrent-login
                       mountPath: /run/qbittorrent-login
                       readOnly: true
               volumes:
                 - name: qbittorrent-init
-                  configMap:
-                    name: qbittorrent-init
-                    defaultMode: 0755
+                  projected:
+                    sources:
+                      - configMap:
+                          name: qbittorrent-interface
+                      - configMap:
+                          name: qbittorrent-init
                 - name: qbittorrent-login
                   secret:
                     secretName: gluetun
