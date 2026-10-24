@@ -45,6 +45,7 @@ local/cluster.sh release       # done: free the shared VM for other worktrees (l
 
 - Never mutate the prod cluster. Against prod only read-only commands (`get`, `describe`, `logs`, `flux get`, `local/cluster.sh diff`). Mutating `kubectl`/`helm`/`flux` commands are denied in `.claude/settings.json`; go through `local/cluster.sh`, which only ever uses the local kubeconfig.
 - Work on a feature branch or worktree, never on `master`.
+- Create worktrees only under this repository's `.worktrees/` directory (`.worktrees/<name>`). When already in a worktree, use the main checkout's `.worktrees/` directory.
 - A cluster change is done when `check` passes, `sync master` then `sync` exits 0 (plus `verify` for gluetun/qBittorrent/arr and alerting changes), `diff` shows only the intended changes, and the VM is handed back with `local/cluster.sh release`.
 - Local-only overrides live in `local/flux/patches/` and nowhere else; local stand-ins for external services (e.g. the WireGuard server gluetun uses locally) live in `local/fixtures/`. A new component that uses prod credentials against an external service (tailnet, VPN, ACME/DNS) needs an override there.
 - NixOS changes can only be evaluated locally. Deploying hosts (`rebuild.sh`) and pushing/merging are left to the user.
