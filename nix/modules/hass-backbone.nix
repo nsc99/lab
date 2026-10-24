@@ -51,6 +51,9 @@
 
   services.zigbee2mqtt.enable = true;
   services.zigbee2mqtt = {
+    # This nixpkgs pin fixes Node 22; Node 24 is still vulnerable to
+    # CVE-2026-111497. Zigbee2MQTT 2.14.2 supports Node 22.
+    package = pkgs.zigbee2mqtt.override { nodejs = pkgs.nodejs_22; };
     dataDir = "/var/lib/zigbee2mqtt";
 
     settings = {
