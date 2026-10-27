@@ -1,23 +1,48 @@
-/* One static photograph and compact glass cards; no decorative scripts. */
+/* One static photograph and compact glass cards in both native themes. */
 :root {
   color-scheme: dark;
   --lab-ink: #f6f0ec;
   --lab-muted: #c4b8b8;
   --lab-accent: #f3ba9d;
   --lab-line: #ffffff24;
+  --lab-background: #171318;
+  --lab-overlay: linear-gradient(#14101855, #14101899);
+  --lab-card: #211b26a6;
+  --lab-card-hover: #302431bd;
+  --lab-hover-line: #f3ba9d99;
+  --lab-shadow: inset 0 1px 0 #ffffff0a, 0 4px 18px #00000018;
+  --lab-icon: #ffffff0a;
+  --lab-icon-line: #ffffff0c;
+  --lab-divider: #ffffff16;
+}
+:root.light {
+  color-scheme: light;
+  --lab-ink: #302a2b;
+  --lab-muted: #625354;
+  --lab-accent: #8c4229;
+  --lab-line: #5d3f422b;
+  --lab-background: #f3ede8;
+  --lab-overlay: linear-gradient(#f8f1e8a6, #f3e9e0cc);
+  --lab-card: #fffaf3db;
+  --lab-card-hover: #fffdf7ed;
+  --lab-hover-line: #8c422999;
+  --lab-shadow: inset 0 1px 0 #ffffffb3, 0 4px 18px #49342b12;
+  --lab-icon: #71452d0a;
+  --lab-icon-line: #71452d18;
+  --lab-divider: #5d3f4224;
 }
 html, body, #__next, #page_wrapper, #inner_wrapper {
   background: transparent !important;
   color: var(--lab-ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
-html { background: #171318 !important; }
+html { background: var(--lab-background) !important; }
 body::before {
   content: "";
   position: fixed;
   inset: -8px;
   z-index: -1;
-  background: linear-gradient(#14101855, #14101899), url("/background.jpeg") center / cover no-repeat;
+  background: var(--lab-overlay), url("/background.jpeg") center / cover no-repeat;
   filter: blur(3px);
   pointer-events: none;
 }
@@ -41,21 +66,21 @@ body::before {
   padding: 16px !important;
   border: 1px solid var(--lab-line);
   border-radius: 14px !important;
-  background: #211b26a6 !important;
+  background: var(--lab-card) !important;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: inset 0 1px 0 #ffffff0a, 0 4px 18px #00000018 !important;
+  box-shadow: var(--lab-shadow) !important;
   transition: none;
 }
-.service-card:hover, .service-card:focus-within { border-color: #f3ba9d99; background: #302431bd !important; }
+.service-card:hover, .service-card:focus-within { border-color: var(--lab-hover-line); background: var(--lab-card-hover) !important; }
 .service-title { align-items: center; gap: 10px; }
 .service-icon {
   width: 36px !important;
   height: 36px;
   flex-shrink: 0;
   padding: 7px;
-  background: #ffffff0a;
-  border: 1px solid #ffffff0c;
+  background: var(--lab-icon);
+  border: 1px solid var(--lab-icon-line);
   border-radius: 10px;
 }
 .service-icon img, .service-icon svg { width: 22px; height: 22px; }
@@ -90,7 +115,7 @@ a.service-title-text::before {
   pointer-events: none;
   margin-top: 12px;
   padding-top: 9px;
-  border-top: 1px solid #ffffff16;
+  border-top: 1px solid var(--lab-divider);
   max-height: none !important;
   transition: none !important;
 }
@@ -98,14 +123,27 @@ a.service-title-text::before {
   pointer-events: none;
   margin-top: 9px;
   padding-top: 9px;
-  border-top: 1px solid #ffffff16;
+  border-top: 1px solid var(--lab-divider);
 }
 .service-block { margin: 0; padding: 0; background: transparent !important; animation: none !important; }
-.service-block + .service-block { border-left: 1px solid #ffffff16; }
+.service-block + .service-block { border-left: 1px solid var(--lab-divider); }
 .service-block-value { color: var(--lab-ink); font-size: 13px !important; font-weight: 500 !important; }
 .service-block-label { color: var(--lab-muted); font-size: 9px !important; opacity: 1 !important; margin-top: 2px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 3px; }
 #footer { margin: 16px 0 0; padding: 0 !important; }
+/* The picker delegates to the native control to keep Homepage's state in sync. */
+#theme { display: none; }
+#lab-theme-picker { display: flex; align-items: center; gap: 8px; color: var(--lab-ink); font-size: 12px; }
+#lab-theme-picker select {
+  color: var(--lab-ink);
+  background: var(--lab-card);
+  border: 1px solid var(--lab-line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+#lab-theme-picker select:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 3px; }
 /* The study panel uses a native iframe widget in its own full-width group. */
 .services-group:has(iframe[src="/anki-study.html"]) { margin-bottom: 10px; }
 .services-list:has(iframe[src="/anki-study.html"]) { grid-template-columns: minmax(0, 1fr) !important; }
@@ -117,6 +155,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); ou
   border: 0;
 }
 iframe[src="/anki-study.html"] { display: block; height: clamp(210px, 25vw, 250px); color-scheme: dark; }
+/* Homepage forces light on the iframe wrapper; select the dashboard theme directly. */
+:root.light iframe[src="/anki-study.html"] { color-scheme: light; }
 @media (max-width: 900px) {
   .services-list { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }

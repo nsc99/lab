@@ -1,5 +1,5 @@
 // Hash offline.html + background.asset together when updating either file.
-const CACHE = "homepage-offline-6e4c1162089c";
+const CACHE = "homepage-offline-d6d26bf7996c";
 const OFFLINE = "/offline.html";
 const BACKGROUND = "/background.jpeg";
 const STATS_CACHE = "homepage-stats";
