@@ -73,7 +73,7 @@ export function renderActivity(activity, { cached = false } = {}) {
   time.classList.toggle("zero", isToday && model.today.study_time_seconds === 0);
   document.getElementById("summary").textContent = `${model.studied} days studied in the past year`;
   const svg = svgElement("svg", { viewBox: `0 0 ${32 + model.columns * 14} 116`, role: "img", "aria-labelledby": "grid-title" });
-  svg.append(svgElement("title", { id: "grid-title" }, `Anki study activity: ${model.studied} of ${model.cells.length} days studied. Brighter green means more reviews.`));
+  svg.append(svgElement("title", { id: "grid-title" }, `Anki study activity: ${model.studied} of ${model.cells.length} days studied. Stronger green means more reviews.`));
   for (const [row, label] of [[1, "Mon"], [3, "Wed"], [5, "Fri"]]) {
     svg.append(svgElement("text", { x: 0, y: 28 + row * 14 }, label));
   }
