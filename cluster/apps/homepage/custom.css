@@ -131,6 +131,19 @@ a.service-title-text::before {
 .service-block-label { color: var(--lab-muted); font-size: 9px !important; opacity: 1 !important; margin-top: 2px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 3px; }
 #footer { margin: 16px 0 0; padding: 0 !important; }
+/* The picker delegates to the native control to keep Homepage's state in sync. */
+#theme { display: none; }
+#lab-theme-picker { display: flex; align-items: center; gap: 8px; color: var(--lab-ink); font-size: 12px; }
+#lab-theme-picker select {
+  color: var(--lab-ink);
+  background: var(--lab-card);
+  border: 1px solid var(--lab-line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+#lab-theme-picker select:focus-visible { outline: 2px solid var(--lab-accent); outline-offset: 3px; }
 /* The study panel uses a native iframe widget in its own full-width group. */
 .services-group:has(iframe[src="/anki-study.html"]) { margin-bottom: 10px; }
 .services-list:has(iframe[src="/anki-study.html"]) { grid-template-columns: minmax(0, 1fr) !important; }

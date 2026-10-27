@@ -1,7 +1,7 @@
 ---
 title: Junk Lab
 description: Homelab services
-# Leave theme unset to enable the built-in, per-browser light/dark switch.
+# Leave theme unset so custom.js can follow the browser or a manual choice.
 color: stone
 headerStyle: clean
 statusStyle: dot

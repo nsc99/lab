@@ -4,10 +4,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark light">
 <script>
-  // Match Homepage's saved theme before the offline screen paints.
-  try {
-    if (localStorage.getItem("theme-mode") === "light") document.documentElement.classList.add("light");
-  } catch { /* Keep the default theme when browser storage is unavailable. */ }
+  const browserTheme = window.matchMedia("(prefers-color-scheme: dark)");
+  let preference = "system";
+  try { preference = localStorage.getItem("homepage-theme-preference") || "system"; } catch { /* Follow the browser without storage. */ }
+  function applyTheme() {
+    const light = preference === "light" || (preference === "system" && !browserTheme.matches);
+    document.documentElement.classList.toggle("light", light);
+  }
+  browserTheme.addEventListener("change", applyTheme);
+  applyTheme();
 </script>
 <link rel="icon" href="data:,">
 <title>Junk Lab · Not connected</title>
