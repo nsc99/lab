@@ -8,3 +8,10 @@ resources:
   - services.yaml
   - ingress.yaml
   - pvc.yaml
+  - networkpolicy.yaml
+configMapGenerator:
+  # Mounted into qBittorrent's /custom-cont-init.d.
+  - name: qbittorrent-interface
+    namespace: gluetun
+    files:
+      - qbittorrent-interface.sh

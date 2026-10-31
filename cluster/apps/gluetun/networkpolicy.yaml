@@ -1,0 +1,32 @@
+---
+# qBittorrent shares gluetun's network namespace. Only traefik may reach the
+# WebUI (Sonarr/Radarr use its ingress URL), which keeps gluetun's control
+# server and qBittorrent's other ports away from the rest of the cluster. The
+# only egress outside the tunnel is WireGuard to the VPN server; the tunnel's
+# contents are invisible here.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gluetun
+  namespace: gluetun
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: UDP
+          port: 51820
