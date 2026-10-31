@@ -11,7 +11,7 @@ images:
   - name: python
     newName: docker.io/library/python
     # renovate: datasource=docker depName=python
-    newTag: 3.15.0-alpine
+    newTag: 3.15.1-alpine
   - name: ntfy
     newName: binwiederhier/ntfy
     # renovate: datasource=docker depName=binwiederhier/ntfy
