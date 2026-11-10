@@ -6,3 +6,13 @@
           classes: h-60
           referrerPolicy: same-origin
           loadingStrategy: eager
+- Services:
+    - Public access:
+        icon: mdi-web-check
+        href: https://dashboard.uptimerobot.com/
+        description: External HTTPS availability through netcup-chiller
+        widget:
+          type: uptimerobot
+          url: "{{HOMEPAGE_VAR_UPTIMEROBOT_URL}}"
+          key: "{{HOMEPAGE_VAR_UPTIMEROBOT_API_KEY}}"
+          fields: ["status", "uptime", "lastDown", "downDuration"]

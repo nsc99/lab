@@ -46,6 +46,8 @@ spec:
               secretRef:
                 name: homepage-widget-credentials
           env:
+            - name: HOMEPAGE_VAR_UPTIMEROBOT_URL
+              value: https://api.uptimerobot.com
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: lab.${EXTERNAL_DOMAIN}
             - name: HOSTNAME

@@ -90,6 +90,39 @@ does not request sessions, and the Seerr widget does not request request lists
 or users. Their browser responses therefore contain aggregate counts, and
 Homepage strips the keys from browser configuration.
 
+## Public availability
+
+The **Public access** tile uses Homepage's native
+[UptimeRobot widget](https://gethomepage.dev/widgets/services/uptimerobot/) to
+show status, current uptime duration, and the last outage's start and duration.
+The monitor must probe `https://jellyfin.schweigert.io` from UptimeRobot's
+external network. This exercises public DNS, netcup-chiller's HAProxy,
+Tailscale, Traefik and Jellyfin. A normal Homepage URL check would use the
+cluster's CoreDNS rewrite and bypass the public relay.
+
+1. Create an HTTPS monitor for `https://jellyfin.schweigert.io` in UptimeRobot
+   and configure its alert contacts. Verify it reports the public route as up.
+2. Generate a **monitor-specific API key** for this monitor. An account-wide
+   read-only key shows aggregate up/down counts instead of this tile's fields.
+3. Run `sops cluster/apps/homepage/secret.yaml` and replace
+   `stringData.UPTIMEROBOT_API_KEY` with that key when provisioning or rotating
+   it. The key is stored encrypted; the existing `envFrom` prefix exposes it
+   as `HOMEPAGE_VAR_UPTIMEROBOT_API_KEY`.
+4. After Flux applies the Secret, the operator restarts Homepage to load the
+   key. Reload the dashboard to fetch the latest monitor result: the pinned
+   widget fetches once when mounted, rather than polling continuously.
+
+The card links to UptimeRobot's dashboard. Its API calls originate from
+Homepage; the API key is stripped from browser service configuration. The
+widget uses POST requests, which the offline worker does not cache.
+
+Local testing overrides both the API URL and key in
+`local/flux/patches/apps.yaml`. The `uptimerobot` fixture returns one synthetic
+monitor, including an earlier outage; it never calls UptimeRobot or probes
+production. Its `monitor.json` ConfigMap entry can be changed to `status: 9`
+(down) and back to `2` (up) to exercise the widget's responses. Reload the
+Homepage after each change. `local/cluster.sh sync` restores the fixture.
+
 The full-width Anki panel above the service grid uses
 [Anker](https://github.com/nsc99/anker), deployed in `cluster/apps/anker/`.
 It shows 365 study days as a Sunday-first heat map, shaded by review count,
@@ -199,8 +232,8 @@ read-only mount when serving the dashboard.
 `kubernetes.yaml` enables in-cluster Ingress discovery. The dedicated service
 account can list Ingresses, pods and pod metrics across namespaces; it cannot
 read Secrets or logs, execute commands, or modify cluster resources.
-`services.yaml` contains only the study panel; applications still come from
-Ingress discovery without a duplicate inventory.
+`services.yaml` contains the study panel and public availability card;
+applications still come from Ingress discovery without a duplicate inventory.
 
 The dashboard needs no database or PVC. Logs use ephemeral storage. Service
 links open each application's own login; the configured widgets query app

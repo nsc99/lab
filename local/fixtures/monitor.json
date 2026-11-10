@@ -1,0 +1,10 @@
+{
+  "id": 1,
+  "friendly_name": "Public access (local fixture)",
+  "url": "https://jellyfin.lab.test",
+  "status": 2,
+  "logs": [
+    {"type": 2, "datetime": 1793635200, "duration": 7200},
+    {"type": 1, "datetime": 1793634900, "duration": 300}
+  ]
+}
