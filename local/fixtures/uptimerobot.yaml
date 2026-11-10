@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uptimerobot
+  namespace: local-fixtures
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uptimerobot
+  template:
+    metadata:
+      labels:
+        app: uptimerobot
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: uptimerobot
+          image: python
+          command: [python, /fixtures/uptimerobot.py]
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          volumeMounts:
+            - name: fixture
+              mountPath: /fixtures
+              readOnly: true
+      volumes:
+        - name: fixture
+          configMap:
+            name: uptimerobot
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: uptimerobot
+  namespace: local-fixtures
+spec:
+  selector:
+    app: uptimerobot
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

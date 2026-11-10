@@ -24,6 +24,10 @@ spec:
               containers:
                 - name: homepage
                   env:
+                    - name: HOMEPAGE_VAR_UPTIMEROBOT_URL
+                      value: http://uptimerobot.local-fixtures.svc.cluster.local:8080
+                    - name: HOMEPAGE_VAR_UPTIMEROBOT_API_KEY
+                      value: local-uptimerobot
                     - name: HOMEPAGE_VAR_JELLYFIN_API_KEY
                       valueFrom:
                         secretKeyRef:
