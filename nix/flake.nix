@@ -102,13 +102,7 @@
             src = ./.;
             hooks.nixfmt.enable = true;
             hooks.deadnix.enable = true;
-            hooks.gitleaks = {
-              enable = true;
-              name = "gitleaks";
-              entry = "${pkgs.gitleaks}/bin/gitleaks protect --verbose --redact --staged";
-              package = pkgs.gitleaks;
-              pass_filenames = false;
-            };
+            hooks.gitleaks.enable = true;
           };
           nixos-configs = pkgs.linkFarm "all-systems" toplevelsForSystem;
         }
