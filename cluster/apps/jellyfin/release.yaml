@@ -32,7 +32,7 @@ spec:
       # `12.2.0`); Renovate only offers tags shaped like the current one, so the
       # two-part tag is what lets it follow 12.3, 12.4, ...
       # renovate: datasource=docker depName=docker.io/jellyfin/jellyfin
-      tag: "12.2"
+      tag: "12.4"
       pullPolicy: IfNotPresent
     ingress:
       enabled: true
