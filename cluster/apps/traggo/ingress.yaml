@@ -1,0 +1,31 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traggo
+  namespace: traggo
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Traggo"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "mdi-timer-outline"
+    gethomepage.dev/description: "Immersion hours"
+    gethomepage.dev/weight: "35"
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: traggo-tls
+      hosts:
+        - traggo.${EXTERNAL_DOMAIN}
+  rules:
+    - host: traggo.${EXTERNAL_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: traggo
+                port:
+                  name: http

@@ -1,0 +1,72 @@
+---
+# Tag-based time tracker for immersion hours (tag `immersion`, values
+# `raw video`, `raw audio`, `sub video`, `reading`), logged from an iPhone
+# Shortcut through the GraphQL API at /graphql. LAN/tailnet only.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traggo
+  namespace: traggo
+  labels:
+    app.kubernetes.io/name: traggo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: traggo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: traggo
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: traggo
+          image: docker.io/traggo/server:0.8.3
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          env:
+            # First start only: creates the admin user, never changes it later.
+            - name: TRAGGO_DEFAULT_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: traggo
+                  key: admin_user
+            - name: TRAGGO_DEFAULT_USER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: traggo
+                  key: admin_password
+          ports:
+            - name: http
+              containerPort: 3030
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 30
+          volumeMounts:
+            # The binary's default database path, data/traggo.db, is relative
+            # to its working directory /opt/traggo.
+            - mountPath: /opt/traggo/data
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
