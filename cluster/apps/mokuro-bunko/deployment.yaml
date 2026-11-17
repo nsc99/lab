@@ -46,7 +46,7 @@ spec:
       containers:
         - name: "mokuro-bunko"
           # Server only; OCR comes from remote processors.
-          image: "ghcr.io/gnathonic/mokuro-bunko:0.7.2-lite"
+          image: "ghcr.io/gnathonic/mokuro-bunko:0.7.3-lite"
           imagePullPolicy: "IfNotPresent"
           env:
             # media, as on the NFS export.
