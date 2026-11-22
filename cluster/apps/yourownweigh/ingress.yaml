@@ -6,6 +6,11 @@ metadata:
   name: yourownweigh
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    # The scale's TLS 1.3 client drops encrypted records over 4096 bytes; the
+    # RSA-2048 chain arrives as one 4107-byte Certificate record. ECDSA keeps
+    # the chain small enough.
+    cert-manager.io/private-key-algorithm: ECDSA
+    cert-manager.io/private-key-size: "256"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "YourOwnWeigh"
     gethomepage.dev/group: "Services"
