@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yourownweigh
+spec:
+  replicas: 1
+  # SQLite on a ReadWriteOnce volume: never run two pods at once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: yourownweigh
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: yourownweigh
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: yourownweigh
+          # Upstream publishes only commit-SHA tags (and latest); bump by hand.
+          image: ghcr.io/tomanthony/yourownweigh:a1dd053246c5a095f4226981962f278a505ed8c7@sha256:dea344590ee78bcca0fd1157a63ad516002a0e890ba4fd54f63fc5931f0c8403
+          env:
+            - name: TZ
+              value: Europe/Berlin
+            # Dashboard, bridge WebSocket and scale uploads share this origin.
+            # The scale firmware takes at most 48 characters of hostname.
+            - name: YOW_PUBLIC_ORIGIN
+              value: https://weigh.${EXTERNAL_DOMAIN}
+          ports:
+            - name: http
+              containerPort: 8080
+          # Plain-HTTP requests are redirected to HTTPS unless they are addressed
+          # to localhost, so the probes send that Host.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost:8080
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost:8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost:8080
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi

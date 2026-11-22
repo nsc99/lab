@@ -1,0 +1,32 @@
+# LAN/tailnet only (no public entrypoint): the scale, the bridge and the phone
+# reach it through AdGuard's LAN answer for *.${EXTERNAL_DOMAIN}.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: yourownweigh
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "YourOwnWeigh"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "mdi-scale-bathroom"
+    gethomepage.dev/description: "Body Smart scale readings"
+    gethomepage.dev/weight: "50"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=yourownweigh"
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: yourownweigh-tls
+      hosts:
+        - weigh.${EXTERNAL_DOMAIN}
+  rules:
+    - host: weigh.${EXTERNAL_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: yourownweigh
+                port:
+                  name: http
